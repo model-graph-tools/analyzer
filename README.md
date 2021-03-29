@@ -1,6 +1,6 @@
-# Model Graph Analyzer
+# Analyzer
 
-Command line tool which reads the management model from a WildFly instance and stores it as a graph in a [Neo4j](https://neo4j.com/) database. 
+Command line tool to parse and store the management model of a WildFly instance into a [graph](https://neo4j.com/) database. 
 
 ## Get Started
 
