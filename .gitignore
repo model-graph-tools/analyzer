@@ -1,0 +1,12 @@
+*.iml
+*.bak
+.DS_Store
+.idea
+.settings
+.project
+.classpath
+dependency-reduced-pom.xml
+hs_err*
+data
+out
+target
