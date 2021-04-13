@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# Starts a Neo4J instance with an empty database
+# Starts a Neo4J model database
 #
 # Parameters
 #   1. WildFly version >= 10
 
 
 VERSION=$1
-DATA_DIRECTORY=/tmp/mgt/$VERSION
+RELEASE=$VERSION.0.0.Final
+PLAY_URL=https://model-graph-tools.github.io/play/wf$VERSION/
 
 
 # Prerequisites
@@ -26,11 +27,12 @@ fi
 
 
 
-mkdir -p $DATA_DIRECTORY
 docker run \
   --detach \
-  --name=neo4j-empty-$VERSION \
-  --publish=64$VERSION:7474 --publish=66$VERSION:7687 \
-  --volume=$DATA_DIRECTORY:/data \
+  --name=neo4j-model-$VERSION \
+  --publish=74$VERSION:7474 --publish=76$VERSION:7687 \
   --env NEO4J_AUTH=none \
-  neo4j
+  --env NEO4J_browser_post__connect__cmd="play $PLAY_URL" \
+  --env NEO4J_browser_remote__content__hostname__whitelist=* \
+  --env NEO4J_dbms_read__only=true \
+  modelgraphtools/neo4j:$RELEASE

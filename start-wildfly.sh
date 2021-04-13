@@ -7,6 +7,7 @@
 
 
 VERSION=$1
+RELEASE=$VERSION.0.0.Final
 
 
 # Prerequisites
@@ -14,13 +15,19 @@ if [[ "$#" -ne 1 ]]; then
   echo "Illegal number of parameters. Please use $0 <wildfly-version>"
   exit 1
 fi
+if ! [[ $VERSION =~ ^[0-9]+$ ]] ; then
+  echo "Illegal version. Must be numeric and >= 10."
+  exit 1
+fi
+if [[ "$VERSION" -lt "10" ]]; then
+  echo "Illegal version. Must be numeric and >= 10."
+  exit 1
+fi
+
+
 
 docker run \
   --detach \
-  --name=wf$VERSION \
+  --name=wildfly-$VERSION \
   --publish=99$VERSION:9990 \
-  jboss/wildfly:$VERSION.0.0.Final \
-  /opt/jboss/wildfly/bin/standalone.sh \
-  -b 0.0.0.0 \
-  -bmanagement 0.0.0.0 \
-  -c standalone-full-ha.xml
+  modelgraphtools/wildfly:$RELEASE

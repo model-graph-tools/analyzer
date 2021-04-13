@@ -7,6 +7,5 @@
 .classpath
 dependency-reduced-pom.xml
 hs_err*
-data
 out
 target

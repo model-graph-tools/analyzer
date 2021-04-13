@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Starts a Neo4J instance with an empty database
+# Builds a WildFly image to be analyzed
 #
 # Parameters
 #   1. WildFly version >= 10
 
 
 VERSION=$1
-DATA_DIRECTORY=/tmp/mgt/$VERSION
+RELEASE=$VERSION.0.0.Final
 
 
 # Prerequisites
@@ -26,11 +26,8 @@ fi
 
 
 
-mkdir -p $DATA_DIRECTORY
-docker run \
-  --detach \
-  --name=neo4j-empty-$VERSION \
-  --publish=64$VERSION:7474 --publish=66$VERSION:7687 \
-  --volume=$DATA_DIRECTORY:/data \
-  --env NEO4J_AUTH=none \
-  neo4j
+docker build \
+  --build-arg WILDFLY_RELEASE=$RELEASE \
+  --file src/main/docker/wildfly/Dockerfile \
+  --tag modelgraphtools/wildfly:$RELEASE \
+  src/main/docker/wildfly

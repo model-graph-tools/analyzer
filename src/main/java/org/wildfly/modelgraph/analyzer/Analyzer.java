@@ -93,7 +93,7 @@ class Analyzer {
                 parse(address.add(child), address);
             }
         } else {
-            logger.warn("Skip {}. Maximum nesting of {} reached.", address.toString(), MAX_DEPTH);
+            logger.warn("Skip {}. Maximum nesting of {} reached.", address, MAX_DEPTH);
         }
     }
 
@@ -208,7 +208,7 @@ class Analyzer {
             //    "access=identity"
             // exist.
             // But nevertheless the parent resource holds also descriptions for such resources.
-            String childDescriptions = modelNode.get(CHILDREN).asPropertyList().stream()
+            var childDescriptions = modelNode.get(CHILDREN).asPropertyList().stream()
                     .map(property -> {
                         String childDescription = property.getValue().get(DESCRIPTION)
                                 .asString("No description available for " + property.getName());
@@ -333,7 +333,7 @@ class Analyzer {
         appendIfPresent(cypher, STORAGE, attribute, ModelNode::asString);
         cypher.append("})"); // end attribute
         mergeDeprecated(cypher, "a", attribute, String.format("%s@%s",
-                address.toString(), (path.isEmpty() ? name : (String.join(".", path) + "." + name))));
+                address, (path.isEmpty() ? name : (String.join(".", path) + "." + name))));
 
         var counters = nc.execute(cypher);
         stats.attributes += counters.nodesCreated();
@@ -422,7 +422,7 @@ class Analyzer {
             }
         }
         cypher.append("})"); // end operation
-        mergeDeprecated(cypher, "o", operation, String.format("%s:%s", address.toString(), name));
+        mergeDeprecated(cypher, "o", operation, String.format("%s:%s", address, name));
 
         var counters = nc.execute(cypher);
         stats.operations += counters.nodesCreated();

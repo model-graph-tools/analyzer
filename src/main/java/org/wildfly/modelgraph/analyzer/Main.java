@@ -32,20 +32,20 @@ public class Main implements Callable<Stats> {
     HostAndPort wildFly;
 
     @Option(names = {"-u", "--wildfly-user"}, description = "WildFly admin username")
-    String wildFlyUsername = "admin";
+    String wildFlyUsername = "";
 
     @Option(names = {"-p", "--wildfly-password"}, description = "WildFly admin password")
-    String wildFlyPassword = "admin";
+    String wildFlyPassword = "";
 
     @Option(names = {"-n", "--neo4j"},
             description = "Neo4j database as <server>[:<port>] with 7687 as default port. Omit to connect to a local Neo4j database at localhost:7687.")
     HostAndPort neo4j;
 
     @Option(names = {"-s", "--neo4j-user"}, description = "Neo4j username")
-    String neo4jUsername = "neo4j";
+    String neo4jUsername = "";
 
     @Option(names = {"-t", "--neo4j-password"}, description = "Neo4j password")
-    String neo4jPassword = "neo4j";
+    String neo4jPassword = "";
 
     @Option(names = {"-c", "--clean"},
             description = "remove all indexes, nodes, relationships and properties before analysing the management model tree.")

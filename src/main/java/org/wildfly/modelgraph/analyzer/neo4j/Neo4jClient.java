@@ -8,6 +8,7 @@ import org.neo4j.driver.summary.SummaryCounters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wildfly.modelgraph.analyzer.HostAndPort;
+import org.wildfly.modelgraph.analyzer.Strings;
 
 public class Neo4jClient implements AutoCloseable {
 
@@ -17,7 +18,7 @@ public class Neo4jClient implements AutoCloseable {
 
     public Neo4jClient(HostAndPort hostAndPort, String username, String password, boolean clean) {
         var uri = "bolt://" + hostAndPort;
-        var authToken = username != null && password != null
+        var authToken = !Strings.isEmpty(username) && !Strings.isEmpty(password)
                 ? AuthTokens.basic(username, password)
                 : AuthTokens.none();
         driver = GraphDatabase.driver(uri, authToken);

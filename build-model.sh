@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Starts a Neo4J instance with an empty database
+# Builds a Neo4J model database
 #
 # Parameters
 #   1. WildFly version >= 10
 
 
 VERSION=$1
+RELEASE=$VERSION.0.0.Final
 DATA_DIRECTORY=/tmp/mgt/$VERSION
 
 
@@ -23,14 +24,14 @@ if [[ "$VERSION" -lt "10" ]]; then
   echo "Illegal version. Must be numeric and >= 10."
   exit 1
 fi
+if ! [[ -d "$DATA_DIRECTORY" ]]
+then
+    echo "$DATA_DIRECTORY does not exists."
+  exit 1
+fi
 
 
-
-mkdir -p $DATA_DIRECTORY
-docker run \
-  --detach \
-  --name=neo4j-empty-$VERSION \
-  --publish=64$VERSION:7474 --publish=66$VERSION:7687 \
-  --volume=$DATA_DIRECTORY:/data \
-  --env NEO4J_AUTH=none \
-  neo4j
+docker build \
+  --file src/main/docker/neo4j/Dockerfile \
+  --tag modelgraphtools/neo4j:$RELEASE \
+  $DATA_DIRECTORY

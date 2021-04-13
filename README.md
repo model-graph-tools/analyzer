@@ -2,16 +2,6 @@
 
 Command line tool to parse and store the management model of a WildFly instance into a [graph](https://neo4j.com/) database. 
 
-## Get Started
-
-To analyse the management model tree you need a running WildFly and Neo4j 4.x instance. To install Neo4j, download it from https://neo4j.com/download/ or use `brew install neo4j` if you're on a Mac. Start Neo4j using `neo4j start` from the command line and open [http://localhost:7474/](http://localhost:7474/). If you login for the first time, you have to change your password. To change it back to the default use 
-
-```cypher
-CALL dbms.changePassword('neo4j')
-```
-
-and refresh your browser.
-
 ## Usage
 
 The command line tool accepts the following options and parameters:
@@ -51,12 +41,13 @@ Options:
   -h, --help                display this help message and exit
 ```
 
-If everything runs locally using the default ports, use the following command to analyses the complete resource tree:
+## Get Started
 
-```bash
-java -jar model-graph-analyzer-0.2.0.jar /
-    --wildfly-user=admin --wildfly-password=admin \
-    --neo4j-user=neo4j --neo4j-password=neo4j /
-```
+To analyse the management model you need a running WildFly and Neo4j 4.x instance. You can use a combination of the scripts in this repository to build and run WildFly and Neo4j instances as docker containers. Each script takes a WildFly version number >= 10 as parameter. The version number must be an integer and *not* the WildFly release number such as `23.0.0.Final`. 
 
-This will populate the Neo4j instance with nodes, relations and properties of the specified resource (sub)tree. Please make sure the Neo4j instance is empty or use the `--clean` option to remove existing data. After the tool has finished, head to [http://localhost:7474/](http://localhost:7474/) and enter some queries. 
+- `build-wildfly.sh <version>`: Builds a WildFly image of the specified version, adds an admin user and exposes the management port as `99<version>`.
+- `start-wildfly.sh <version>`: Runs the WildFly instance built by `build-wildfly.sh`.
+- `start-neo4j.sh <version>`: Runs an empty Neo4j database and mounts the data directory to a temporary directory.
+- `analyze.sh <version>`: Analyses the management model using the WildFly instance started by `start-wildfly.sh` and the Neo4j instance started by `start-neo4j.sh`.
+- `build-model.sh <version>`: Builds a Neo4j image with the analysed database.
+- `start-model.sh <version>`: Runs the Neo4j instance built by `build-model.sh` and exposes the port for the Neo4j browser to `74<version>`.

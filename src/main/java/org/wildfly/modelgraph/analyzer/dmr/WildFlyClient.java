@@ -31,14 +31,11 @@ public class WildFlyClient implements AutoCloseable {
                     hostAndPort.port(),
                     callbacks -> {
                         for (var current : callbacks) {
-                            if (current instanceof NameCallback) {
-                                var ncb = (NameCallback) current;
+                            if (current instanceof NameCallback ncb) {
                                 ncb.setName(username);
-                            } else if (current instanceof PasswordCallback) {
-                                var pcb = (PasswordCallback) current;
+                            } else if (current instanceof PasswordCallback pcb) {
                                 pcb.setPassword(password.toCharArray());
-                            } else if (current instanceof RealmCallback) {
-                                var rcb = (RealmCallback) current;
+                            } else if (current instanceof RealmCallback rcb) {
                                 rcb.setText(rcb.getDefaultText());
                             } else {
                                 throw new UnsupportedCallbackException(current);
