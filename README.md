@@ -47,7 +47,5 @@ To analyse the management model you need a running WildFly and Neo4j 4.x instanc
 
 - `build-wildfly.sh <version>`: Builds a WildFly image of the specified version, adds an admin user and exposes the management port as `99<version>`.
 - `start-wildfly.sh <version>`: Runs the WildFly instance built by `build-wildfly.sh`.
-- `start-neo4j.sh <version>`: Runs an empty Neo4j database and mounts the data directory to a temporary directory.
+- `start-neo4j.sh <version>`: Runs a Neo4j database and mounts the data directory to a temporary directory.
 - `analyze.sh <version>`: Analyses the management model using the WildFly instance started by `start-wildfly.sh` and the Neo4j instance started by `start-neo4j.sh`.
-- `build-model.sh <version>`: Builds a Neo4j image with the analysed database.
-- `start-model.sh <version>`: Runs the Neo4j instance built by `build-model.sh` and exposes the port for the Neo4j browser to `74<version>`.

@@ -7,7 +7,7 @@
 
 
 VERSION=$1
-DATA_DIRECTORY=/tmp/mgt/$VERSION
+DATA_DIRECTORY=$PWD/target/data/$VERSION
 
 
 # Prerequisites
@@ -25,12 +25,12 @@ if [[ "$VERSION" -lt "10" ]]; then
 fi
 
 
-
+rm -rf $DATA_DIRECTORY
 mkdir -p $DATA_DIRECTORY
 docker run \
   --detach \
-  --name=neo4j-empty-$VERSION \
-  --publish=64$VERSION:7474 --publish=66$VERSION:7687 \
+  --name=neo4j-analyze-$VERSION \
+  --publish=66$VERSION:7687 \
   --volume=$DATA_DIRECTORY:/data \
-  --env NEO4J_AUTH=none \
+  --env NEO4J_AUTH=neo4j/neo5j \
   neo4j

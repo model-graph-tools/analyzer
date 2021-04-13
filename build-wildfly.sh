@@ -25,7 +25,6 @@ if [[ "$VERSION" -lt "10" ]]; then
 fi
 
 
-
 docker build \
   --build-arg WILDFLY_RELEASE=$RELEASE \
   --file src/main/docker/wildfly/Dockerfile \

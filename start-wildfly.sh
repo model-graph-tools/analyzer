@@ -25,7 +25,6 @@ if [[ "$VERSION" -lt "10" ]]; then
 fi
 
 
-
 docker run \
   --detach \
   --name=wildfly-$VERSION \
