@@ -33,7 +33,7 @@ then
 fi
 
 
-docker stop mgta-neo4j-analyze-$VERSION 2>/dev/null
+docker stop mgt-analyze-$VERSION 2>/dev/null
 rm -rf $DUMP_DIRECTORY
 mkdir -p $DUMP_DIRECTORY
 docker run --interactive --tty --rm \
