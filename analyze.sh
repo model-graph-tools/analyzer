@@ -32,4 +32,4 @@ java -jar target/model-graph-analyzer-0.0.1.jar \
   --wildfly=localhost:99$VERSION \
   --wildfly-user=admin \
   --wildfly-password=admin \
-  /subsystem=ee
+  /
