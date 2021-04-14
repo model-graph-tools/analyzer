@@ -30,7 +30,5 @@ docker run \
   --detach \
   --name=neo4j-model-$VERSION \
   --publish=74$VERSION:7474 --publish=76$VERSION:7687 \
-  --env NEO4J_AUTH=none \
-  --env NEO4J_dbms_read__only=true \
   --env NEO4J_browser_post__connect__cmd="play $PLAY_URL" \
   modelgraphtools/neo4j:$RELEASE

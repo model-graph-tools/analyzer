@@ -7,7 +7,7 @@
 
 
 VERSION=$1
-DATA_DIRECTORY=$PWD/target/data/$VERSION
+DATA_DIRECTORY=/tmp/mgt/data/$VERSION
 
 
 # Prerequisites
@@ -32,5 +32,5 @@ docker run \
   --name=neo4j-analyze-$VERSION \
   --publish=66$VERSION:7687 \
   --volume=$DATA_DIRECTORY:/data \
-  --env NEO4J_AUTH=neo4j/neo5j \
+  --env NEO4J_AUTH=neo4j/mgttgm \
   neo4j
