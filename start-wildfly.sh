@@ -27,6 +27,6 @@ fi
 
 docker run \
   --detach \
-  --name=wildfly-$VERSION \
+  --name=mgta-wildfly-$VERSION \
   --publish=99$VERSION:9990 \
   modelgraphtools/wildfly:$RELEASE

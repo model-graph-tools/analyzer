@@ -27,6 +27,6 @@ fi
 
 docker run \
   --detach \
-  --name=neo4j-model-$VERSION \
+  --name=mgta-neo4j-model-$VERSION \
   --publish=74$VERSION:7474 --publish=76$VERSION:7687 \
   modelgraphtools/neo4j:$RELEASE

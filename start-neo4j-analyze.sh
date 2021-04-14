@@ -29,7 +29,7 @@ rm -rf $DATA_DIRECTORY
 mkdir -p $DATA_DIRECTORY
 docker run \
   --detach \
-  --name=neo4j-analyze-$VERSION \
+  --name=mgta-neo4j-analyze-$VERSION \
   --publish=66$VERSION:7687 \
   --volume=$DATA_DIRECTORY:/data \
   --env NEO4J_AUTH=neo4j/mgttgm \
