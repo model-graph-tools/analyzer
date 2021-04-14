@@ -8,7 +8,6 @@
 
 VERSION=$1
 RELEASE=$VERSION.0.0.Final
-PLAY_URL=https://model-graph-tools.github.io/play/$VERSION/
 
 
 # Prerequisites
@@ -30,5 +29,4 @@ docker run \
   --detach \
   --name=neo4j-model-$VERSION \
   --publish=74$VERSION:7474 --publish=76$VERSION:7687 \
-  --env NEO4J_browser_post__connect__cmd="play $PLAY_URL" \
   modelgraphtools/neo4j:$RELEASE
