@@ -50,4 +50,3 @@ To analyse the management model you need a running WildFly and Neo4j 4.x instanc
 - `start-neo4j.sh <version>`: Runs a Neo4j database and mounts the data directory to a temporary directory.
 - `analyze.sh <version>`: Analyses the management model using the WildFly instance started by `start-wildfly.sh` and the Neo4j instance started by `start-neo4j.sh`.
 - `build-modeldb.sh <version>`: Dumps the analysed Neo4j database into a single file and builds a new Neo4j image which imports the database dump at startup.
-- `start-modeldb.sh <version>`: Runs the Neo4j instance built by `build-modeldb.sh`.
