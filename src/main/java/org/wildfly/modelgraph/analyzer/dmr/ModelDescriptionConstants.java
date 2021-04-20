@@ -64,6 +64,7 @@ public interface ModelDescriptionConstants {
 
     String GLOBAL = "global";
 
+    String IDENTIFIER = "identifier";
     String INCLUDE_ALIASES = "include-aliases";
     String INCLUDE_RUNTIME = "include-runtime";
     String INCLUDE_SINGLETONS = "include-singletons";

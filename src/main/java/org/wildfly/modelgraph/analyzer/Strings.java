@@ -6,5 +6,12 @@ public final class Strings {
         return string == null || string.length() == 0;
     }
 
+    public static String identify(String string) {
+        if (string != null) {
+            return string.toLowerCase().replace(' ', '-');
+        }
+        return "";
+    }
+
     private Strings() {}
 }

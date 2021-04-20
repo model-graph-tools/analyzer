@@ -174,16 +174,20 @@ class Analyzer {
     // ------------------------------------------------------ resources
 
     private void writeIdentity(ModelNode identityNode) {
+        String productName = identityNode.get(PRODUCT_NAME).asString("WildFly");
+        String productVersion = identityNode.get(PRODUCT_VERSION).asString("0.0.0");
         int major = identityNode.get(MANAGEMENT_MAJOR_VERSION).asInt();
         int minor = identityNode.get(MANAGEMENT_MINOR_VERSION).asInt();
         int patch = identityNode.get(MANAGEMENT_MICRO_VERSION).asInt();
+        String managementVersion = String.format("%d.%d.%d", major, minor, patch);
+        String identifier = String.format("%s-%s-mgt-%s", productName, productVersion, managementVersion);
+
         var cypher = new Cypher("CREATE (:Identity {")
-                .append(MANAGEMENT_VERSION, String.format("%d.%d.%d", major, minor, patch));
-        appendIfPresent(cypher, PRODUCT_NAME, identityNode, ModelNode::asString);
-        appendIfPresent(cypher, PRODUCT_VERSION, identityNode, ModelNode::asString);
-        appendIfPresent(cypher, RELEASE_CODENAME, identityNode, ModelNode::asString);
-        appendIfPresent(cypher, RELEASE_VERSION, identityNode, ModelNode::asString);
-        cypher.append("})");
+                .append(IDENTIFIER, identifier).comma()
+                .append(PRODUCT_NAME, productName).comma()
+                .append(PRODUCT_VERSION, productVersion).comma()
+                .append(MANAGEMENT_VERSION, managementVersion)
+                .append("})");
 
         nc.execute(cypher);
         stats.resources++;
