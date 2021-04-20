@@ -180,7 +180,8 @@ class Analyzer {
         int minor = identityNode.get(MANAGEMENT_MINOR_VERSION).asInt();
         int patch = identityNode.get(MANAGEMENT_MICRO_VERSION).asInt();
         String managementVersion = String.format("%d.%d.%d", major, minor, patch);
-        String identifier = String.format("%s-%s-mgt-%s", productName, productVersion, managementVersion);
+        String identifier = String.format("%s-%s-mgt-%s",
+                Strings.identify(productName), productVersion, managementVersion);
 
         var cypher = new Cypher("CREATE (:Identity {")
                 .append(IDENTIFIER, identifier).comma()
