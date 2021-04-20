@@ -15,7 +15,7 @@
 
 
 # Prerequisites
-if [[ "$#" -ne 1 ]]; then
+if [[ "$#" -lt "1" ]]; then
   echo "Illegal number of parameters. Please use $0 <wildfly-versions>"
   exit 1
 fi
