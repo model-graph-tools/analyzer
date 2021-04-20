@@ -70,20 +70,20 @@ class Analyzer {
 
     void start(String resource) {
         stats.start();
-        version();
+        identity();
         parse(ResourceAddress.of(resource), null);
         stats.stop();
     }
 
     // ------------------------------------------------------ management model
 
-    private void version() {
+    private void identity() {
         var operation = new Operation.Builder(READ_RESOURCE, ResourceAddress.of("/"))
                 .param(ATTRIBUTES_ONLY, true)
                 .param(INCLUDE_RUNTIME, true)
                 .build();
         var modelNode = wc.execute(operation);
-        writeVersion(modelNode);
+        writeIdentity(modelNode);
     }
 
     private void parse(ResourceAddress address, ResourceAddress parent) {
@@ -173,20 +173,16 @@ class Analyzer {
 
     // ------------------------------------------------------ resources
 
-    private void writeVersion(ModelNode versionNode) {
-        int major = versionNode.get(MANAGEMENT_MAJOR_VERSION).asInt();
-        int minor = versionNode.get(MANAGEMENT_MINOR_VERSION).asInt();
-        int patch = versionNode.get(MANAGEMENT_MICRO_VERSION).asInt();
-        var cypher = new Cypher("CREATE (:Version {")
-                .append(MANAGEMENT_MODEL, true).comma()
-                .append(MAJOR, major).comma()
-                .append(MINOR, minor).comma()
-                .append(PATCH, patch).comma()
-                .append(ORDINAL, versionOrdinal(major, minor, patch));
-        appendIfPresent(cypher, PRODUCT_NAME, versionNode, ModelNode::asString);
-        appendIfPresent(cypher, PRODUCT_VERSION, versionNode, ModelNode::asString);
-        appendIfPresent(cypher, RELEASE_CODENAME, versionNode, ModelNode::asString);
-        appendIfPresent(cypher, RELEASE_VERSION, versionNode, ModelNode::asString);
+    private void writeIdentity(ModelNode identityNode) {
+        int major = identityNode.get(MANAGEMENT_MAJOR_VERSION).asInt();
+        int minor = identityNode.get(MANAGEMENT_MINOR_VERSION).asInt();
+        int patch = identityNode.get(MANAGEMENT_MICRO_VERSION).asInt();
+        var cypher = new Cypher("CREATE (:Identity {")
+                .append(MANAGEMENT_VERSION, String.format("%d.%d.%d", major, minor, patch));
+        appendIfPresent(cypher, PRODUCT_NAME, identityNode, ModelNode::asString);
+        appendIfPresent(cypher, PRODUCT_VERSION, identityNode, ModelNode::asString);
+        appendIfPresent(cypher, RELEASE_CODENAME, identityNode, ModelNode::asString);
+        appendIfPresent(cypher, RELEASE_VERSION, identityNode, ModelNode::asString);
         cypher.append("})");
 
         nc.execute(cypher);

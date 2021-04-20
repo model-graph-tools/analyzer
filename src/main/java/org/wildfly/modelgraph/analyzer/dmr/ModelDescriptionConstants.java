@@ -77,7 +77,7 @@ public interface ModelDescriptionConstants {
     String MANAGEMENT_MAJOR_VERSION = "management-major-version";
     String MANAGEMENT_MICRO_VERSION = "management-micro-version";
     String MANAGEMENT_MINOR_VERSION = "management-minor-version";
-    String MANAGEMENT_MODEL = "management-model";
+    String MANAGEMENT_VERSION = "management-version";
     String MAP_CLEAR = "map-clear";
     String MAP_GET = "map-get";
     String MAP_PUT = "map-put";
