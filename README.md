@@ -1,6 +1,6 @@
 # Analyzer
 
-Command line tool to parse and store the management model of a WildFly instance into a [graph](https://neo4j.com/) database. 
+Command line tool to parse and store the management model of a WildFly instance into a [graph](https://neo4j.com/) database. The analyzer is part of the [model graph tools](https://model-graph-tools.github.io/) and provides the graph database used  by the [model](https://github.com/model-graph-tools/model) service.
 
 ## Usage
 
@@ -43,10 +43,4 @@ Options:
 
 ## Get Started
 
-To analyse the management model you need a running WildFly and Neo4j 4.x instance. You can use a combination of the scripts in this repository to build and run WildFly and Neo4j instances as docker containers. Each script takes a WildFly version number >= 10 as parameter. The version number must be an integer and *not* the WildFly release number such as `23.0.0.Final`. 
-
-- `build-wildfly.sh <version>`: Builds a WildFly image of the specified version, adds an admin user and exposes the management port as `99<version>`.
-- `start-wildfly.sh <version>`: Runs the WildFly instance built by `build-wildfly.sh`.
-- `start-neo4j.sh <version>`: Runs a Neo4j database and mounts the data directory to a temporary directory.
-- `analyze.sh <version>`: Analyses the management model using the WildFly instance started by `start-wildfly.sh` and the Neo4j instance started by `start-neo4j.sh`.
-- `build-modeldb.sh <version>`: Dumps the analysed Neo4j database into a single file and builds a new Neo4j image which imports the database dump at startup.
+Please take a look at the [setup](https://github.com/model-graph-tools/setup) repository how to get started.
