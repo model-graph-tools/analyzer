@@ -8,6 +8,7 @@
 # What it does (in pseudo code)
 #
 # for each version
+#   ./build-wildfly.sh version
 #   ./start-wildfly.sh version
 #   ./start-neo4j.sh version
 #   ./analyze.sh version
@@ -23,6 +24,7 @@ fi
 
 for VERSION in "$@"
 do
+    ./build-wildfly.sh $VERSION
     ./start-wildfly.sh $VERSION
     ./start-neo4j.sh $VERSION
     sleep 60

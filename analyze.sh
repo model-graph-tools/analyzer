@@ -27,8 +27,6 @@ fi
 java -jar target/model-graph-analyzer-0.0.1.jar \
   --clean \
   --neo4j=localhost:66$VERSION \
-  --neo4j-user=neo4j \
-  --neo4j-password=mgttgm \
   --wildfly=localhost:99$VERSION \
   --wildfly-user=admin \
   --wildfly-password=admin \

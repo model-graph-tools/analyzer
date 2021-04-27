@@ -32,5 +32,5 @@ docker run \
   --name=mgt-analyze-$VERSION \
   --publish=66$VERSION:7687 \
   --volume=$DATA_DIRECTORY:/data \
-  --env NEO4J_AUTH=neo4j/mgttgm \
+  --env NEO4J_dbms_security_auth__enabled=false \
   neo4j
