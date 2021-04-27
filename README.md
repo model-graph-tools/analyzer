@@ -1,6 +1,6 @@
 # Analyzer
 
-Command line tool to parse and store the management model of a WildFly instance into a [graph](https://neo4j.com/) database. The analyzer is part of the [model graph tools](https://model-graph-tools.github.io/) and provides the graph database used  by the [model](https://github.com/model-graph-tools/model) service.
+Command line tool to parse and store the management model of a WildFly instance into a [graph](https://neo4j.com/) database. 
 
 ## Usage
 
@@ -41,6 +41,10 @@ Options:
   -h, --help                display this help message and exit
 ```
 
-## Get Started
+## Big Picture
 
-Please take a look at the [setup](https://github.com/model-graph-tools/setup) repository how to get started.
+The analyzer is part of the [model graph tools](https://model-graph-tools.github.io/) and creates the graph database used  by the [model](https://github.com/model-graph-tools/model) service.
+
+Take a look at the [setup](https://github.com/model-graph-tools/setup) repository how to get started.
+
+![Model Graph Tools](https://model-graph-tools.github.io/img/tools.svg)
