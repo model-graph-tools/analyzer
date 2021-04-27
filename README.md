@@ -61,4 +61,4 @@ The analyzer is part of the [model graph tools](https://model-graph-tools.github
 
 Take a look at the [setup](https://github.com/model-graph-tools/setup) repository how to get started.
 
-<img src="https://model-graph-tools.github.io/img/tools.svg" alt="Model Graph Tools" style="width:50%;" />
+<img src="https://model-graph-tools.github.io/img/tools.svg" alt="Model Graph Tools" width="512" />
