@@ -10,7 +10,6 @@ VERSION=$1
 RELEASE=$VERSION.0.0.Final
 DATA_DIRECTORY=/tmp/mgt/data/$VERSION
 DUMP_DIRECTORY=/tmp/mgt/dump/$VERSION
-PLAY_URL=https://model-graph-tools.github.io/play/$VERSION/
 
 
 # Prerequisites
@@ -45,7 +44,6 @@ docker run --interactive --tty --rm \
 
 cp src/main/docker/neo4j/mgt-entrypoint.sh $DUMP_DIRECTORY
 docker build \
-  --build-arg PLAY_URL=$PLAY_URL \
   --file src/main/docker/neo4j/Dockerfile \
   --tag modelgraphtools/neo4j:$RELEASE \
   $DUMP_DIRECTORY
