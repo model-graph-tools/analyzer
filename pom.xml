@@ -29,7 +29,7 @@
 
     <name>Model Graph Analyzer</name>
     <description>Command line tool to analyze the management model of a WildFly instance</description>
-    <url>https://github.com/wildfly-model-graph</url>
+    <url>https://model-graph-tools.github.io/</url>
 
     <organization>
         <name>JBoss, a division of Red Hat</name>
@@ -56,16 +56,16 @@
 
     <properties>
         <!-- dependencies -->
-        <eclipse.collections.version>11.0.0.M1</eclipse.collections.version>
+        <eclipse.collections.version>11.0.0.M2</eclipse.collections.version>
         <jboss.dmr.version>1.6.0.Beta1</jboss.dmr.version>
-        <jboss.logging.version>3.4.1.Final</jboss.logging.version>
-        <jboss.threads.version>2.4.0.Final</jboss.threads.version>
+        <jboss.logging.version>3.4.2.Final</jboss.logging.version>
+        <jboss.threads.version>3.4.0.Final</jboss.threads.version>
         <jboss.xnio.version>3.8.4.Final</jboss.xnio.version>
-        <junit.jupiter.version>5.7.0</junit.jupiter.version>
+        <junit.jupiter.version>5.8.0-M1</junit.jupiter.version>
         <logback.version>1.3.0-alpha5</logback.version>
-        <neo4j.driver.version>4.2.0</neo4j.driver.version>
+        <neo4j.driver.version>4.3.1</neo4j.driver.version>
         <picocli.version>4.6.1</picocli.version>
-        <wildfly.client.version>14.0.0.Final</wildfly.client.version>
+        <wildfly.client.version>17.0.0.Beta1</wildfly.client.version>
 
         <!-- plugins -->
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
@@ -74,10 +74,12 @@
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
 
         <!-- settings -->
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <maven.compiler.target>16</maven.compiler.target>
         <maven.compiler.source>16</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <timestamp>${maven.build.timestamp}</timestamp>
     </properties>
 
     <dependencies>
@@ -227,6 +229,8 @@
                                         <exclude>META-INF/MANIFEST.MF</exclude>
                                         <exclude>META-INF/LICENSE*</exclude>
                                         <exclude>META-INF/ECLIPSE*</exclude>
+                                        <exclude>META-INF/services/java.security.Provider</exclude>
+                                        <exclude>META-INF/services/javax.security.sasl.Sasl*Factory</exclude>
                                         <exclude>META-INF/maven/**</exclude>
                                         <exclude>META-INF/versions/**</exclude>
                                     </excludes>

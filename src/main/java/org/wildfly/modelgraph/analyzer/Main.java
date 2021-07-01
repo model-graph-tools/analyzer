@@ -48,17 +48,17 @@ public class Main implements Callable<Stats> {
     String neo4jPassword = "";
 
     @Option(names = {"-c", "--clean"},
-            description = "remove all indexes, nodes, relationships and properties before analysing the management model tree.")
+            description = "Remove all indexes, nodes, relationships and properties before analysing the management model tree.")
     boolean clean = false;
 
     @Option(names = {"-v", "--verbose"},
-            description = "prints additional information about the processed resources.")
+            description = "Prints additional information about the processed resources.")
     boolean verbose = false;
 
-    @Option(names = {"-V", "--version"}, versionHelp = true, description = "display version information and exit")
+    @Option(names = {"-V", "--version"}, versionHelp = true, description = "Display version information and exit")
     boolean versionInfoRequested;
 
-    @Option(names = {"-h", "--help"}, usageHelp = true, description = "display this help message and exit")
+    @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message and exit")
     boolean helpRequested;
 
     @Parameters(paramLabel = "RESOURCE", description = "the root resource to analyse.")
