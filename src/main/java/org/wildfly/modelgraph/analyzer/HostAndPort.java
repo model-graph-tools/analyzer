@@ -176,8 +176,7 @@ public final class HostAndPort implements Serializable {
         if (this == other) {
             return true;
         }
-        if (other instanceof HostAndPort) {
-            var that = (HostAndPort) other;
+        if (other instanceof HostAndPort that) {
             return Objects.equals(this.host, that.host) && this.port == that.port;
         }
         return false;
