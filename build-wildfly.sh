@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Builds a WildFly image to be analyzed
+# Builds the WildFly image to be analyzed
 #
 # Parameters
 #   1. WildFly version >= 10
@@ -8,6 +8,7 @@
 
 VERSION=$1
 RELEASE=$VERSION.0.0.Final
+REPO=quay.io/wildfly/wildfly
 
 
 # Prerequisites
@@ -25,8 +26,16 @@ if [[ "$VERSION" -lt "10" ]]; then
 fi
 
 
+# Starting with WildFly 24, we use quay.io
+# for the WildFly images.
+if [[ "$VERSION" -lt "24" ]]; then
+  REPO=jboss/wildfly
+fi
+
+
 docker build \
   --build-arg WILDFLY_RELEASE=$RELEASE \
+  --build-arg DOCKER_REPO=$REPO \
   --file src/main/docker/wildfly/Dockerfile \
-  --tag modelgraphtools/wildfly:$RELEASE \
+  --tag quay.io/modelgraphtools/wildfly:$RELEASE \
   src/main/docker/wildfly

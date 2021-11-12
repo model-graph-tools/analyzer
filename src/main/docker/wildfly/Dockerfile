@@ -1,5 +1,6 @@
 ARG WILDFLY_RELEASE=latest
-FROM jboss/wildfly:${WILDFLY_RELEASE}
+ARG DOCKER_REPO=jboss/wildfly
+FROM ${DOCKER_REPO}:${WILDFLY_RELEASE}
 
 LABEL maintainer="Harald Pehl <hpehl@redhat.com>"
 

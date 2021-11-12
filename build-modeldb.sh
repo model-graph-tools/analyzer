@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Builds a Neo4J model database
+# Builds the Neo4J model database
 #
 # Parameters
 #   1. WildFly version >= 10
@@ -45,5 +45,5 @@ docker run --interactive --tty --rm \
 cp src/main/docker/neo4j/mgt-entrypoint.sh $DUMP_DIRECTORY
 docker build \
   --file src/main/docker/neo4j/Dockerfile \
-  --tag modelgraphtools/neo4j:$RELEASE \
+  --tag quay.io/modelgraphtools/neo4j:$RELEASE \
   $DUMP_DIRECTORY

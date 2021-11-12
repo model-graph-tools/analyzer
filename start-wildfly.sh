@@ -29,4 +29,4 @@ docker run \
   --detach \
   --name=mgt-wildfly-$VERSION \
   --publish=99$VERSION:9990 \
-  modelgraphtools/wildfly:$RELEASE
+  quay.io/modelgraphtools/wildfly:$RELEASE
