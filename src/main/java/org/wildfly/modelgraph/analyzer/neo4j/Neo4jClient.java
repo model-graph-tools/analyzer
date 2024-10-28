@@ -36,21 +36,21 @@ public class Neo4jClient implements AutoCloseable {
                         summary.counters().relationshipsDeleted());
                 tx.commit();
             }
-            failSafeDrop("DROP INDEX ON :Parameter(name)");
-            failSafeDrop("DROP INDEX ON :Operation(name)");
-            failSafeDrop("DROP INDEX ON :Capability(name)");
-            failSafeDrop("DROP INDEX ON :Resource(name)");
-            failSafeDrop("DROP CONSTRAINT ON (r:Resource) ASSERT r.address IS UNIQUE");
-            failSafeDrop("DROP INDEX ON :Attribute(name)");
+            failSafeDrop("DROP INDEX parameter_name IF EXISTS");
+            failSafeDrop("DROP INDEX operation_name IF EXISTS");
+            failSafeDrop("DROP INDEX capability_name IF EXISTS");
+            failSafeDrop("DROP INDEX resource_name IF EXISTS");
+            failSafeDrop("DROP CONSTRAINT unique_address IF EXISTS");
+            failSafeDrop("DROP INDEX attribute_name IF EXISTS");
         }
         try (var session = driver.session();
              var tx = session.beginTransaction()) {
-            tx.run("CREATE INDEX ON :Resource(name)");
-            tx.run("CREATE CONSTRAINT ON (r:Resource) ASSERT r.address IS UNIQUE");
-            tx.run("CREATE INDEX ON :Attribute(name)");
-            tx.run("CREATE INDEX ON :Capability(name)");
-            tx.run("CREATE INDEX ON :Operation(name)");
-            tx.run("CREATE INDEX ON :Parameter(name)");
+            tx.run("CREATE INDEX resource_name FOR (r:Resource) ON (r.name)");
+            tx.run("CREATE CONSTRAINT unique_address FOR (r:Resource) REQUIRE r.address IS UNIQUE");
+            tx.run("CREATE INDEX attribute_name FOR (a:Attribute) ON (a.name)");
+            tx.run("CREATE INDEX capability_name FOR (c:Capability) ON (c.name)");
+            tx.run("CREATE INDEX operation_name FOR (o:Operation) ON (o.name)");
+            tx.run("CREATE INDEX parameter_name FOR (p:Parameter) ON (p.name)");
             tx.commit();
         }
     }

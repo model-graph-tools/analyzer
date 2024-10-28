@@ -56,25 +56,29 @@
 
     <properties>
         <!-- dependencies -->
-        <eclipse.collections.version>11.0.0.M6</eclipse.collections.version>
-        <junit.jupiter.version>5.8.1</junit.jupiter.version>
-        <logback.version>1.3.0-alpha10</logback.version>
-        <neo4j.driver.version>4.4.1</neo4j.driver.version>
-        <picocli.version>4.6.2</picocli.version>
-        <wildfly.client.version>17.0.3.Final</wildfly.client.version>
+        <eclipse.collections.version>12.0.0.M3</eclipse.collections.version>
+        <junit.jupiter.version>5.11.3</junit.jupiter.version>
+        <logback.version>1.5.11</logback.version>
+        <neo4j.driver.version>5.26.0</neo4j.driver.version>
+        <picocli.version>4.7.6</picocli.version>
+        <wildfly.client.version>27.0.0.Beta1</wildfly.client.version>
 
         <!-- plugins -->
-        <compiler-plugin.version>3.8.1</compiler-plugin.version>
-        <enforcer-plugin.version>3.0.0</enforcer-plugin.version>
-        <shade-plugin.version>3.2.4</shade-plugin.version>
-        <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+        <compiler.plugin.version>3.13.0</compiler.plugin.version>
+        <enforcer.plugin.version>3.5.0</enforcer.plugin.version>
+        <resources.plugin.version>3.3.1</resources.plugin.version>
+        <shade.plugin.version>3.6.0</shade.plugin.version>
+        <surefire.plugin.version>3.5.1</surefire.plugin.version>
 
         <!-- settings -->
+        <encoding>UTF-8</encoding>
+        <java.version>21</java.version>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.source>17</maven.compiler.source>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
         <timestamp>${maven.build.timestamp}</timestamp>
     </properties>
 
@@ -130,27 +134,43 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${compiler-plugin.version}</version>
+                    <version>${compiler.plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>${enforcer-plugin.version}</version>
+                    <version>${enforcer.plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>${shade-plugin.version}</version>
+                    <version>${shade.plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${surefire-plugin.version}</version>
+                    <version>${surefire.plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>${picocli.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -163,7 +183,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>[17,)</version>
+                                    <version>[${java.version},)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -182,22 +202,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>info.picocli</groupId>
-                            <artifactId>picocli-codegen</artifactId>
-                            <version>${picocli.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                    <compilerArgs>
-                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
-                    </compilerArgs>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -222,13 +226,16 @@
                                     <excludes>
                                         <exclude>*.html</exclude>
                                         <exclude>LICENSE*</exclude>
+                                        <exclude>module-info.class</exclude>
                                         <exclude>META-INF/MANIFEST.MF</exclude>
                                         <exclude>META-INF/LICENSE*</exclude>
                                         <exclude>META-INF/ECLIPSE*</exclude>
-                                        <exclude>META-INF/services/java.security.Provider</exclude>
-                                        <exclude>META-INF/services/javax.security.sasl.Sasl*Factory</exclude>
                                         <exclude>META-INF/maven/**</exclude>
                                         <exclude>META-INF/versions/**</exclude>
+                                        <exclude>META-INF/io.netty.versions.properties</exclude>
+                                        <exclude>META-INF/services/java.security.Provider</exclude>
+                                        <exclude>META-INF/services/javax.security.sasl.Sasl*Factory</exclude>
+                                        <exclude>META-INF/services/reactor.blockhound.integration.BlockHoundIntegratio</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

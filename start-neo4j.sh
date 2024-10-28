@@ -30,7 +30,8 @@ mkdir -p $DATA_DIRECTORY
 docker run \
   --detach \
   --name=mgt-analyze-$VERSION \
+  --publish=44$VERSION:7474 \
   --publish=66$VERSION:7687 \
   --volume=$DATA_DIRECTORY:/data \
   --env NEO4J_dbms_security_auth__enabled=false \
-  neo4j
+  neo4j:5.24.2

@@ -1,4 +1,4 @@
-FROM neo4j:4.3.5
+FROM neo4j:5.24.2
 
 LABEL maintainer="Harald Pehl <hpehl@redhat.com>"
 

@@ -40,7 +40,7 @@ docker run --interactive --tty --rm \
   --volume=$DUMP_DIRECTORY:/dump \
   --user="$(id -u):$(id -g)" \
   neo4j \
-  neo4j-admin dump --database=neo4j --to=/dump/db.dump
+  neo4j-admin database dump --database=neo4j --to=/dump/db.dump
 
 cp src/main/docker/neo4j/mgt-entrypoint.sh $DUMP_DIRECTORY
 docker build \

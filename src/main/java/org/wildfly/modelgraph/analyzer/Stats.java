@@ -6,7 +6,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.joining;
 
-class Stats {
+public class Stats {
 
     private long start;
     private Duration duration = Duration.ZERO;

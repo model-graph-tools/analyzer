@@ -7,7 +7,7 @@
 
 
 VERSION=$1
-RELEASE=$VERSION.0.0.Final
+RELEASE=$VERSION.0.0.Final-jdk11
 
 
 # Prerequisites

@@ -15,7 +15,7 @@ log_info() {
 set -m
 
 log_info "Import database dump"
-neo4j-admin load --from=./db.dump --database=neo4j --force
+neo4j-admin database load --from=./db.dump --database=neo4j --force
 log_info "DONE"
 
 /docker-entrypoint.sh neo4j
