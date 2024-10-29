@@ -27,7 +27,7 @@ do
     ./build-wildfly.sh $VERSION
     ./start-wildfly.sh $VERSION
     ./start-neo4j.sh $VERSION
-    sleep 10 # 300
+    sleep 300
     ./analyze.sh $VERSION
     ./build-modeldb.sh $VERSION
     docker stop mgt-wildfly-$VERSION 2>/dev/null

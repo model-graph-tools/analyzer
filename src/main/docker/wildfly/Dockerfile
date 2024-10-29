@@ -1,6 +1,5 @@
-ARG WILDFLY_RELEASE=latest
-ARG DOCKER_REPO=jboss/wildfly
-FROM ${DOCKER_REPO}:${WILDFLY_RELEASE}
+ARG WILDFLY_IMAGE=quay.io/wildfly/wildfly:latest
+FROM ${WILDFLY_IMAGE}
 
 LABEL maintainer="Harald Pehl <hpehl@redhat.com>"
 
