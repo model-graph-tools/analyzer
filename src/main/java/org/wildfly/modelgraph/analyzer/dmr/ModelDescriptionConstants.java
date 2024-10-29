@@ -42,6 +42,7 @@ public interface ModelDescriptionConstants {
     String ACCESS_TYPE = "access-type";
     String ADDRESS = "address";
     String ALIAS = "alias";
+    String ALLOWED = "allowed";
     String ALTERNATIVES = "alternatives";
     String ATTRIBUTE_GROUP = "attribute-group";
     String ATTRIBUTES = "attributes";

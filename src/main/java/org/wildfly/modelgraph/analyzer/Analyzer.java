@@ -1,5 +1,11 @@
 package org.wildfly.modelgraph.analyzer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -15,16 +21,91 @@ import org.wildfly.modelgraph.analyzer.dmr.WildFlyClient;
 import org.wildfly.modelgraph.analyzer.neo4j.Cypher;
 import org.wildfly.modelgraph.analyzer.neo4j.Neo4jClient;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.*;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ACCESS_CONSTRAINTS;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ACCESS_TYPE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ADDRESS;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ALIAS;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ALLOWED;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ALTERNATIVES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ATTRIBUTES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ATTRIBUTES_ONLY;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ATTRIBUTE_GROUP;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.CAPABILITIES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.CAPABILITY_REFERENCE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.CHILD;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.CHILDREN;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.CHILD_DESCRIPTIONS;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.DEFAULT;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.DEPRECATED;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.DESCRIPTION;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.EXPRESSIONS_ALLOWED;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.GLOBAL;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.IDENTIFIER;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.INCLUDE_ALIASES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.INCLUDE_RUNTIME;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.INCLUDE_SINGLETONS;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.LIST_ADD;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.LIST_CLEAR;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.LIST_GET;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.LIST_REMOVE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAJOR;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MANAGEMENT_MAJOR_VERSION;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MANAGEMENT_MICRO_VERSION;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MANAGEMENT_MINOR_VERSION;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MANAGEMENT_VERSION;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAP_CLEAR;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAP_GET;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAP_PUT;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAP_REMOVE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAX;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAX_LENGTH;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MIN;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MINOR;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MIN_LENGTH;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.NAME;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.NILLABLE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.OPERATIONS;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.OPERATION_NAME;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ORDINAL;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.PARENT;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.PATCH;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.PRODUCT_NAME;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.PRODUCT_VERSION;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.QUERY;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_ATTRIBUTE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_ATTRIBUTE_GROUP;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_ATTRIBUTE_GROUP_NAMES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_CHILDREN_NAMES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_CHILDREN_RESOURCES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_CHILDREN_TYPES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_ONLY;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_OPERATION_DESCRIPTION;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_OPERATION_NAMES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_RESOURCE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_RESOURCE_DESCRIPTION;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REASON;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REMOVE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REPLY_PROPERTIES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REQUEST_PROPERTIES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REQUIRED;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REQUIRES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.RESTART_REQUIRED;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.RESULT;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.RETURN_VALUE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.RUNTIME_ONLY;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SENSITIVE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SINCE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SINGLETON;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.STORAGE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.TYPE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.UNDEFINE_ATTRIBUTE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.UNIT;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.VALUE_TYPE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.WHOAMI;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.WRITE_ATTRIBUTE;
 
 class Analyzer {
 
@@ -342,7 +423,7 @@ class Analyzer {
     }
 
     private void mergeAttributeReferencesCapability(ResourceAddress address, List<String> path, String name,
-                                                    String capability) {
+            String capability) {
         var cypher = matchResource(address);
         if (path.isEmpty()) {
             cypher.append("-[:HAS_ATTRIBUTE]->");
@@ -383,7 +464,7 @@ class Analyzer {
     }
 
     private void mergeAttributeRelation(ResourceAddress address, List<String> path,
-                                        String source, String target, String relation) {
+            String source, String target, String relation) {
         var cypher = matchResource(address);
         if (path.isEmpty()) {
             cypher.append("-[:HAS_ATTRIBUTE]->(source:Attribute {")
@@ -448,7 +529,7 @@ class Analyzer {
     // ------------------------------------------------------ parameters
 
     private void mergeParameters(ResourceAddress address, String operation, List<String> path,
-                                 List<Property> properties) {
+            List<Property> properties) {
         MutableMultimap<String, String> alternatives = new FastListMultimap<>();
         MutableMultimap<String, String> requires = new FastListMultimap<>();
         for (var property : properties) {
@@ -499,7 +580,7 @@ class Analyzer {
     }
 
     private void mergeParameter(ResourceAddress address, String operation, List<String> path,
-                                String name, ModelNode parameter) {
+            String name, ModelNode parameter) {
         var cypher = matchOperation(address, operation);
         if (path.isEmpty()) {
             cypher.append(" MERGE (o)-[:ACCEPTS]->");
@@ -519,7 +600,7 @@ class Analyzer {
     }
 
     private void mergeParameterReferencesCapability(ResourceAddress address, String operation, List<String> path,
-                                                    String name, String capability) {
+            String name, String capability) {
         var cypher = matchOperation(address, operation);
         if (path.isEmpty()) {
             cypher.append("-[:ACCEPTS]->");
@@ -537,7 +618,7 @@ class Analyzer {
     }
 
     private void mergeParameterRelation(ResourceAddress address, String operation, List<String> path,
-                                        String source, String target, String relation) {
+            String source, String target, String relation) {
         var cypher = matchOperation(address, operation);
         if (path.isEmpty()) {
             cypher.append("-[:ACCEPTS]->(source:Parameter {")
@@ -566,7 +647,7 @@ class Analyzer {
     }
 
     private void appendPath(Cypher cypher, List<String> path, String type, String relation,
-                            BiConsumer<Cypher, String> variableConsumer) {
+            BiConsumer<Cypher, String> variableConsumer) {
         var i = 0;
         String variable = null;
         for (var iterator = path.listIterator(); iterator.hasNext(); i++) {
@@ -582,6 +663,9 @@ class Analyzer {
     }
 
     private void appendCommonProperties(Cypher cypher, ModelNode modelNode) {
+        appendIfPresent(cypher, ALLOWED, modelNode, value -> value.asList().stream()
+                .map(ModelNode::asString)
+                .collect(toList()));
         appendIfPresent(cypher, EXPRESSIONS_ALLOWED, modelNode, ModelNode::asBoolean);
         appendIfPresent(cypher, MAX, modelNode, ModelNode::asLong);
         appendIfPresent(cypher, MAX_LENGTH, modelNode, ModelNode::asLong);
@@ -662,7 +746,7 @@ class Analyzer {
     }
 
     private <T> void appendIfPresent(Cypher cypher, String name, ModelNode modelNode, String attribute,
-                                     Function<ModelNode, T> getValue) {
+            Function<ModelNode, T> getValue) {
         if (modelNode.hasDefined(attribute)) {
             var value = modelNode.get(attribute);
             // must not be the first append(name, value) call!

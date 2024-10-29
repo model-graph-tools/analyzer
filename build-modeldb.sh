@@ -8,6 +8,7 @@
 
 VERSION=$1
 RELEASE=$VERSION.0.0.Final
+NEO4J_VERSION=5.24.2
 DATA_DIRECTORY=/tmp/mgt/data/$VERSION
 DUMP_DIRECTORY=/tmp/mgt/dump/$VERSION
 
@@ -39,11 +40,12 @@ docker run --interactive --tty --rm \
   --volume=$DATA_DIRECTORY:/data \
   --volume=$DUMP_DIRECTORY:/dump \
   --user="$(id -u):$(id -g)" \
-  neo4j \
-  neo4j-admin database dump --database=neo4j --to=/dump/db.dump
+  neo4j:${NEO4J_VERSION} \
+  neo4j-admin database dump --to-path=/dump neo4j
 
 cp src/main/docker/neo4j/mgt-entrypoint.sh $DUMP_DIRECTORY
 docker build \
+  --build-arg NEO4J_VERSION=$NEO4J_VERSION \
   --file src/main/docker/neo4j/Dockerfile \
   --tag quay.io/modelgraphtools/neo4j:$RELEASE \
   $DUMP_DIRECTORY

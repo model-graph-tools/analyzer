@@ -7,6 +7,7 @@
 
 
 VERSION=$1
+NEO4J_VERSION=5.24.2
 DATA_DIRECTORY=/tmp/mgt/data/$VERSION
 
 
@@ -34,4 +35,4 @@ docker run \
   --publish=66$VERSION:7687 \
   --volume=$DATA_DIRECTORY:/data \
   --env NEO4J_dbms_security_auth__enabled=false \
-  neo4j:5.24.2
+  neo4j:${NEO4J_VERSION}
