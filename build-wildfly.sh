@@ -7,7 +7,7 @@
 
 
 VERSION=$1
-RELEASE=$VERSION.0.0.Final-jdk11
+RELEASE=$VERSION.0.0.Final
 REPO=quay.io/wildfly/wildfly
 
 
@@ -30,6 +30,8 @@ fi
 # for the WildFly images.
 if [[ "$VERSION" -lt "24" ]]; then
   REPO=jboss/wildfly
+else
+  RELEASE=$VERSION.0.0.Final-jdk11
 fi
 
 

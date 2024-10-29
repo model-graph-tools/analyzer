@@ -87,7 +87,6 @@ import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_RESOURCE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_RESOURCE_DESCRIPTION;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REASON;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REMOVE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REPLY_PROPERTIES;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REQUEST_PROPERTIES;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REQUIRED;
@@ -99,6 +98,7 @@ import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.RUNT
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SENSITIVE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SINCE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SINGLETON;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.STABILITY;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.STORAGE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.TYPE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.UNDEFINE_ATTRIBUTE;
@@ -112,7 +112,7 @@ class Analyzer {
     private static final int MAX_DEPTH = 10;
     private static final Logger logger = LoggerFactory.getLogger(Analyzer.class);
     private static final ImmutableSet<String> GLOBAL_OPERATIONS = Sets.immutable.of(
-            // ADD is not stored as a global operation (each ADD operation is different)
+            // ADD and REMOVE are not stored as global operations
             LIST_ADD,
             LIST_CLEAR,
             LIST_GET,
@@ -132,7 +132,6 @@ class Analyzer {
             READ_OPERATION_NAMES,
             READ_RESOURCE_DESCRIPTION,
             READ_RESOURCE,
-            REMOVE,
             UNDEFINE_ATTRIBUTE,
             WHOAMI,
             WRITE_ATTRIBUTE);
@@ -191,8 +190,8 @@ class Analyzer {
             // for a foo=* address, the result is an array
             if (resourceDescription.getType() == ModelType.LIST) {
                 var descriptions = resourceDescription.asList();
-                if (!descriptions.isEmpty() && descriptions.get(0).hasDefined(RESULT)) {
-                    resourceDescription = descriptions.get(0).get(RESULT);
+                if (!descriptions.isEmpty() && descriptions.getFirst().hasDefined(RESULT)) {
+                    resourceDescription = descriptions.getFirst().get(RESULT);
                 }
             }
 
@@ -280,16 +279,17 @@ class Analyzer {
                 .append(NAME, address.getName()).comma()
                 .append(ADDRESS, address.toString()).comma()
                 .append(SINGLETON, address.isSingleton());
-        appendIfPresent(cypher, DESCRIPTION, modelNode, ModelNode::asString);
+        appendIfDefined(cypher, DESCRIPTION, modelNode, ModelNode::asString);
+        appendIfDefined(cypher, STABILITY, modelNode, ModelNode::asString);
         if (modelNode.hasDefined(CHILDREN)) {
-            // Ugly workaround to save child descriptions. Only reason is to save descriptions of
+            // Ugly workaround to save child descriptions. The only reason is to save descriptions of
             // none existing 'parent-singleton-resources' such as "/core-service=management/access"
-            // Such resources actually don't exist on its own. Only the singleton child resources like
+            // Such resources actually don't exist on their own. Only the singleton child resources like
             //    "access=audit"
             //    "access=authorization"
             //    "access=identity"
             // exist.
-            // But nevertheless the parent resource holds also descriptions for such resources.
+            // But nevertheless, the parent resource holds also descriptions for such resources.
             var childDescriptions = modelNode.get(CHILDREN).asPropertyList().stream()
                     .map(property -> {
                         String childDescription = property.getValue().get(DESCRIPTION)
@@ -326,8 +326,9 @@ class Analyzer {
     private void mergeDeclaresCapabilities(ResourceAddress address, ModelNode capability) {
         var cypher = matchResource(address)
                 .append(" MERGE (c:Capability {")
-                .append(NAME, capability.get(NAME).asString())
-                .append("}) MERGE (r)-[:DECLARES_CAPABILITY]->(c)");
+                .append(NAME, capability.get(NAME).asString());
+        appendIfDefined(cypher, STABILITY, capability, ModelNode::asString);
+        cypher.append("}) MERGE (r)-[:DECLARES_CAPABILITY]->(c)");
 
         var counters = nc.execute(cypher);
         stats.capabilities += counters.nodesCreated();
@@ -355,7 +356,7 @@ class Analyzer {
                 }
             }
 
-            // references capability
+            // capability
             if (attribute.hasDefined(CAPABILITY_REFERENCE)) {
                 var capabilityReference = attribute.get(CAPABILITY_REFERENCE).asString();
                 mergeAttributeReferencesCapability(address, path, name, capabilityReference);
@@ -389,7 +390,7 @@ class Analyzer {
             }
         }
 
-        // post process alternatives and requires
+        // post-process alternatives and requires
         alternatives.forEachKeyValue((key, value) ->
                 mergeAttributeRelation(address, path, key, value, "-[:ALTERNATIVE]-"));
         requires.forEachKeyValue((key, value) ->
@@ -406,13 +407,13 @@ class Analyzer {
         }
         cypher.append("(a:Attribute {").append(NAME, name);
         appendCommonProperties(cypher, attribute);
-        appendIfPresent(cypher, ACCESS_TYPE, attribute, ModelNode::asString);
-        appendIfPresent(cypher, ALIAS, attribute, ModelNode::asString);
-        appendIfPresent(cypher, ATTRIBUTE_GROUP, attribute, ModelNode::asString);
-        appendIfPresent(cypher, DEFAULT, attribute, ModelNode::asString);
-        appendIfPresent(cypher, DESCRIPTION, attribute, ModelNode::asString);
-        appendIfPresent(cypher, RESTART_REQUIRED, attribute, ModelNode::asString);
-        appendIfPresent(cypher, STORAGE, attribute, ModelNode::asString);
+        appendIfDefined(cypher, ACCESS_TYPE, attribute, ModelNode::asString);
+        appendIfDefined(cypher, ALIAS, attribute, ModelNode::asString);
+        appendIfDefined(cypher, ATTRIBUTE_GROUP, attribute, ModelNode::asString);
+        appendIfDefined(cypher, DEFAULT, attribute, ModelNode::asString);
+        appendIfDefined(cypher, DESCRIPTION, attribute, ModelNode::asString);
+        appendIfDefined(cypher, RESTART_REQUIRED, attribute, ModelNode::asString);
+        appendIfDefined(cypher, STORAGE, attribute, ModelNode::asString);
         cypher.append("})"); // end attribute
         mergeDeprecated(cypher, "a", attribute, String.format("%s@%s",
                 address, (path.isEmpty() ? name : (String.join(".", path) + "." + name))));
@@ -493,13 +494,14 @@ class Analyzer {
                 .append(" MERGE (r)-[:PROVIDES]->(o:Operation {")
                 .append(NAME, name).comma()
                 .append(GLOBAL, globalOperation);
-        appendIfPresent(cypher, DESCRIPTION, operation, ModelNode::asString);
-        appendIfPresent(cypher, READ_ONLY, operation, ModelNode::asBoolean);
-        appendIfPresent(cypher, RUNTIME_ONLY, operation, ModelNode::asBoolean);
+        appendIfDefined(cypher, DESCRIPTION, operation, ModelNode::asString);
+        appendIfDefined(cypher, READ_ONLY, operation, ModelNode::asBoolean);
+        appendIfDefined(cypher, RUNTIME_ONLY, operation, ModelNode::asBoolean);
+        appendIfDefined(cypher, STABILITY, operation, ModelNode::asString);
         if (operation.hasDefined(REPLY_PROPERTIES)) {
             var replyNode = operation.get(REPLY_PROPERTIES);
             if (replyNode.isDefined()) {
-                appendIfPresent(cypher, RETURN_VALUE, replyNode, TYPE, (value -> value.asType().name()));
+                appendIfDefined(cypher, RETURN_VALUE, replyNode, TYPE, (value -> value.asType().name()));
                 appendValueType(cypher, replyNode);
             }
         }
@@ -663,18 +665,19 @@ class Analyzer {
     }
 
     private void appendCommonProperties(Cypher cypher, ModelNode modelNode) {
-        appendIfPresent(cypher, ALLOWED, modelNode, value -> value.asList().stream()
+        appendIfDefined(cypher, ALLOWED, modelNode, value -> value.asList().stream()
                 .map(ModelNode::asString)
                 .collect(toList()));
-        appendIfPresent(cypher, EXPRESSIONS_ALLOWED, modelNode, ModelNode::asBoolean);
-        appendIfPresent(cypher, MAX, modelNode, ModelNode::asLong);
-        appendIfPresent(cypher, MAX_LENGTH, modelNode, ModelNode::asLong);
-        appendIfPresent(cypher, MIN, modelNode, ModelNode::asLong);
-        appendIfPresent(cypher, MIN_LENGTH, modelNode, ModelNode::asLong);
-        appendIfPresent(cypher, NILLABLE, modelNode, ModelNode::asBoolean);
-        appendIfPresent(cypher, REQUIRED, modelNode, ModelNode::asBoolean);
-        appendIfPresent(cypher, TYPE, modelNode, ModelNode::asString);
-        appendIfPresent(cypher, UNIT, modelNode, ModelNode::asString);
+        appendIfDefined(cypher, EXPRESSIONS_ALLOWED, modelNode, ModelNode::asBoolean);
+        appendIfDefined(cypher, MAX, modelNode, ModelNode::asLong);
+        appendIfDefined(cypher, MAX_LENGTH, modelNode, ModelNode::asLong);
+        appendIfDefined(cypher, MIN, modelNode, ModelNode::asLong);
+        appendIfDefined(cypher, MIN_LENGTH, modelNode, ModelNode::asLong);
+        appendIfDefined(cypher, NILLABLE, modelNode, ModelNode::asBoolean);
+        appendIfDefined(cypher, REQUIRED, modelNode, ModelNode::asBoolean);
+        appendIfDefined(cypher, STABILITY, modelNode, ModelNode::asString);
+        appendIfDefined(cypher, TYPE, modelNode, ModelNode::asString);
+        appendIfDefined(cypher, UNIT, modelNode, ModelNode::asString);
         appendValueType(cypher, modelNode);
     }
 
@@ -713,7 +716,7 @@ class Analyzer {
 
     private int[] parseVersion(String value) {
         int[] version = new int[3];
-        if (value != null && value.length() != 0) {
+        if (value != null && !value.isEmpty()) {
             try {
                 String[] parts = value.split("\\.");
                 if (parts.length == 3) {
@@ -741,11 +744,11 @@ class Analyzer {
         return ordinal;
     }
 
-    private <T> void appendIfPresent(Cypher cypher, String name, ModelNode modelNode, Function<ModelNode, T> getValue) {
-        appendIfPresent(cypher, name, modelNode, name, getValue);
+    private <T> void appendIfDefined(Cypher cypher, String name, ModelNode modelNode, Function<ModelNode, T> getValue) {
+        appendIfDefined(cypher, name, modelNode, name, getValue);
     }
 
-    private <T> void appendIfPresent(Cypher cypher, String name, ModelNode modelNode, String attribute,
+    private <T> void appendIfDefined(Cypher cypher, String name, ModelNode modelNode, String attribute,
             Function<ModelNode, T> getValue) {
         if (modelNode.hasDefined(attribute)) {
             var value = modelNode.get(attribute);

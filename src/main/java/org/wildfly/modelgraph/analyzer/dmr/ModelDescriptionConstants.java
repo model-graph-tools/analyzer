@@ -133,6 +133,7 @@ public interface ModelDescriptionConstants {
     String SENSITIVE = "sensitive";
     String SINCE = "since";
     String SINGLETON = "singleton";
+    String STABILITY = "stability";
     String STORAGE = "storage";
     String SUCCESS = "success";
 
