@@ -1,6 +1,7 @@
 # Analyzer
 
-Command line tool to parse and store the management model of a WildFly instance into a [graph](https://neo4j.com/) database. 
+Command line tool to parse and store the management model of a WildFly instance into a [graph](https://neo4j.com/)
+database.
 
 ## Usage
 
@@ -43,7 +44,9 @@ Options:
 
 ## Graph Database
 
-The analyzer walks through the resource tree of the management model until all resources are processed and stored in the graph database. The goal of the analysis is to prepare the data in such a way that makes it very easy to perform specific tasks, such as: 
+The analyzer walks through the resource tree of the management model until all resources are processed and stored in the
+graph database. The goal of the analysis is to prepare the data in such a way that makes it straightforward to perform
+specific tasks, such as:
 
 - show a graphical representation of one or several resources
 - show relationships between resources, its capabilities, operations and attributes
@@ -51,13 +54,15 @@ The analyzer walks through the resource tree of the management model until all r
 - perform evaluations and analysis over a multitude of resources, attributes and operations
 - find attributes which have been marked as deprecated since a given version
 
-This is possible due to the way in which the information is stored in the database. The graph database consists of seven nodes and 18 relationships:
+This is possible due to the way in which the information is stored in the database. The graph database consists of seven
+nodes and 18 relationships:
 
 ![Graph Database](https://model-graph-tools.github.io/img/graph.svg)
 
 ## Big Picture
 
-The analyzer is part of the [model graph tools](https://model-graph-tools.github.io/) and creates the graph database used by the [model](https://github.com/model-graph-tools/model) service.
+The analyzer is part of the [model graph tools](https://model-graph-tools.github.io/) and creates the graph database
+used by the [model](https://github.com/model-graph-tools/model) service.
 
 Take a look at the [setup](https://github.com/model-graph-tools/setup) repository how to get started.
 

@@ -57,11 +57,11 @@
     <properties>
         <!-- dependencies -->
         <eclipse.collections.version>12.0.0.M3</eclipse.collections.version>
-        <junit.jupiter.version>5.11.3</junit.jupiter.version>
-        <logback.version>1.5.11</logback.version>
-        <neo4j.driver.version>5.26.0</neo4j.driver.version>
+        <junit.jupiter.version>5.11.4</junit.jupiter.version>
+        <logback.version>1.5.16</logback.version>
+        <neo4j.driver.version>5.28.1</neo4j.driver.version>
         <picocli.version>4.7.6</picocli.version>
-        <wildfly.client.version>27.0.0.Beta1</wildfly.client.version>
+        <wildfly.client.version>28.0.0.Beta3</wildfly.client.version>
 
         <!-- plugins -->
         <compiler.plugin.version>3.13.0</compiler.plugin.version>
@@ -235,7 +235,8 @@
                                         <exclude>META-INF/io.netty.versions.properties</exclude>
                                         <exclude>META-INF/services/java.security.Provider</exclude>
                                         <exclude>META-INF/services/javax.security.sasl.Sasl*Factory</exclude>
-                                        <exclude>META-INF/services/reactor.blockhound.integration.BlockHoundIntegratio</exclude>
+                                        <exclude>META-INF/services/reactor.blockhound.integration.BlockHoundIntegration
+                                        </exclude>
                                     </excludes>
                                 </filter>
                             </filters>

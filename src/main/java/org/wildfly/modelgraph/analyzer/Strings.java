@@ -3,7 +3,7 @@ package org.wildfly.modelgraph.analyzer;
 public final class Strings {
 
     public static boolean isEmpty(String string) {
-        return string == null || string.length() == 0;
+        return string == null || string.isEmpty();
     }
 
     public static String identify(String string) {
@@ -13,5 +13,6 @@ public final class Strings {
         return "";
     }
 
-    private Strings() {}
+    private Strings() {
+    }
 }
