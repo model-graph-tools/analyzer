@@ -1,0 +1,46 @@
+name: Release Analyzer
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    name: Build and create GitHub release
+    runs-on: ubuntu-latest
+    env:
+      MVN: ./mvnw --show-version --batch-mode --no-transfer-progress
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 23
+          distribution: temurin
+          cache: maven
+      - run: $MVN -DskipTests package
+      - id: get-version
+        uses: battila7/get-version-action@v2.3.0
+      - id: jar
+        run: echo "path=target/model-graph-analyzer-${{ steps.get-version.outputs.version-without-v }}.jar" >> $GITHUB_OUTPUT
+      - id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get-version.outputs.version }}
+          release_name: Analyzer ${{ steps.get-version.outputs.version-without-v }}
+          draft: false
+          prerelease: false
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.jar.outputs.path }}
+          asset_name: ${{ github.event.repository.name }}-${{ github.ref_name }}.jar
+          asset_content_type: application/java-archive

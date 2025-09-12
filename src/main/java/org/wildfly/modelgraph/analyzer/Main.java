@@ -2,12 +2,12 @@ package org.wildfly.modelgraph.analyzer;
 
 import java.util.concurrent.Callable;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wildfly.modelgraph.analyzer.dmr.WildFlyClient;
 import org.wildfly.modelgraph.analyzer.neo4j.Neo4jClient;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -89,7 +89,7 @@ public class Main implements Callable<Stats> {
         try (var wc = new WildFlyClient(failSafeHostAndPort(wildFly, 9990), wildFlyUsername, wildFlyPassword);
              var nc = new Neo4jClient(failSafeHostAndPort(neo4j, 7687), neo4jUsername, neo4jPassword, clean)) {
 
-            // start with resource and store metadata into neo4j database
+            // start with resource and store metadata into a neo4j database
             var analyzer = new Analyzer(wc, nc);
             analyzer.start(resource);
             return analyzer.stats();
