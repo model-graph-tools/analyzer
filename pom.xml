@@ -30,7 +30,7 @@
 
     <groupId>org.wildfly.modelgraph</groupId>
     <artifactId>model-graph-analyzer</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <packaging>jar</packaging>
 
     <name>Model Graph Analyzer</name>
