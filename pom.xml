@@ -63,6 +63,7 @@
     <properties>
         <!-- dependencies -->
         <eclipse.collections.version>13.0.0</eclipse.collections.version>
+        <janino.version>3.1.8</janino.version>
         <junit.jupiter.version>5.13.4</junit.jupiter.version>
         <logback.version>1.5.18</logback.version>
         <neo4j.driver.version>5.28.5</neo4j.driver.version>
@@ -87,6 +88,11 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>${janino.version}</version>
         </dependency>
         <dependency>
             <groupId>info.picocli</groupId>
@@ -155,6 +161,7 @@
                                         <exclude>LICENSE*</exclude>
                                         <exclude>module-info.class</exclude>
                                         <exclude>META-INF/MANIFEST.MF</exclude>
+                                        <exclude>META-INF/DUMMY*</exclude>
                                         <exclude>META-INF/LICENSE*</exclude>
                                         <exclude>META-INF/ECLIPSE*</exclude>
                                         <exclude>META-INF/maven/**</exclude>
