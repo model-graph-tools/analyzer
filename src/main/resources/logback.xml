@@ -6,9 +6,21 @@
             <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <appender name="batch" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
 
     <root level="info">
         <appender-ref ref="CONSOLE"/>
     </root>
+    <if condition='property("batchMode").equalsIgnoreCase("true")'>
+        <then>
+            <root level="info">
+                <appender-ref ref="batch"/>
+            </root>
+        </then>
+    </if>
 
 </configuration>
