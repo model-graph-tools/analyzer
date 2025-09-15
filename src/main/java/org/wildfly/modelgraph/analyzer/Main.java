@@ -51,6 +51,10 @@ public class Main implements Callable<Stats> {
             description = "Remove all indexes, nodes, relationships and properties before analysing the management model tree.")
     boolean clean = false;
 
+    @Option(names = {"-a", "--append"},
+            description = "Only add new resources, existing resources will be skipped.")
+    boolean append = false;
+
     @Option(names = {"-v", "--verbose"},
             description = "Prints additional information about the processed resources.")
     boolean verbose = false;
@@ -87,11 +91,11 @@ public class Main implements Callable<Stats> {
         }
 
         try (var wc = new WildFlyClient(failSafeHostAndPort(wildFly, 9990), wildFlyUsername, wildFlyPassword);
-             var nc = new Neo4jClient(failSafeHostAndPort(neo4j, 7687), neo4jUsername, neo4jPassword, clean)) {
+             var nc = new Neo4jClient(failSafeHostAndPort(neo4j, 7687), neo4jUsername, neo4jPassword, clean, append)) {
 
             // start with resource and store metadata into a neo4j database
             var analyzer = new Analyzer(wc, nc);
-            analyzer.start(resource);
+            analyzer.start(resource, append);
             return analyzer.stats();
         }
     }

@@ -24,6 +24,7 @@ import org.wildfly.modelgraph.analyzer.neo4j.Neo4jClient;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ACCESS_CONSTRAINTS;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ACCESS_TYPE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ADDRESS;
@@ -148,10 +149,10 @@ class Analyzer {
         this.missingGlobalOperations = Sets.mutable.ofAll(GLOBAL_OPERATIONS.castToSet());
     }
 
-    void start(String resource) {
+    void start(String resource, boolean append) {
         stats.start();
         identity();
-        parse(ResourceAddress.of(resource), null);
+        parse(ResourceAddress.of(resource), null, append);
         stats.stop();
     }
 
@@ -166,18 +167,23 @@ class Analyzer {
         writeIdentity(modelNode);
     }
 
-    private void parse(ResourceAddress address, ResourceAddress parent) {
+    private void parse(ResourceAddress address, ResourceAddress parent, boolean append) {
         if (address.size() < MAX_DEPTH) {
-            parseResource(address, parent);
+            parseResource(address, parent, append);
             for (var child : readChildren(address)) {
-                parse(address.add(child), address);
+                parse(address.add(child), address, append);
             }
         } else {
             logger.warn("Skip {}. Maximum nesting of {} reached.", address, MAX_DEPTH);
         }
     }
 
-    private void parseResource(ResourceAddress address, ResourceAddress parent) {
+    private void parseResource(ResourceAddress address, ResourceAddress parent, boolean append) {
+        if (append && nc.exists(matchResource(address))) {
+            logger.info("Skip {}", address);
+            return;
+        }
+
         var rrd = new Operation.Builder(READ_RESOURCE_DESCRIPTION, address)
                 .param(INCLUDE_ALIASES, true)
                 .param(OPERATIONS, true)
@@ -263,7 +269,7 @@ class Analyzer {
         String identifier = String.format("%s-%s-mgt-%s",
                 Strings.identify(productName), productVersion, managementVersion);
 
-        var cypher = new Cypher("CREATE (:Identity {")
+        var cypher = new Cypher("MERGE (:Identity {")
                 .append(IDENTIFIER, identifier).comma()
                 .append(PRODUCT_NAME, productName).comma()
                 .append(PRODUCT_VERSION, productVersion).comma()

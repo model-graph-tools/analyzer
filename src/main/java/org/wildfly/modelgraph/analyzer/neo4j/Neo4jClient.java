@@ -16,17 +16,17 @@ public class Neo4jClient implements AutoCloseable {
 
     private final Driver driver;
 
-    public Neo4jClient(HostAndPort hostAndPort, String username, String password, boolean clean) {
+    public Neo4jClient(HostAndPort hostAndPort, String username, String password, boolean clean, boolean append) {
         var uri = "bolt://" + hostAndPort;
         var authToken = !Strings.isEmpty(username) && !Strings.isEmpty(password)
                 ? AuthTokens.basic(username, password)
                 : AuthTokens.none();
         driver = GraphDatabase.driver(uri, authToken);
         logger.info("Connected to Neo4j database at {}", hostAndPort);
-        setup(clean);
+        setup(clean, append);
     }
 
-    private void setup(boolean clean) {
+    private void setup(boolean clean, boolean append) {
         if (clean) {
             try (var session = driver.session(); var tx = session.beginTransaction()) {
                 var result = tx.run("MATCH (n) DETACH DELETE(n)");
@@ -43,15 +43,17 @@ public class Neo4jClient implements AutoCloseable {
             failSafeDrop("DROP CONSTRAINT unique_address IF EXISTS");
             failSafeDrop("DROP INDEX attribute_name IF EXISTS");
         }
-        try (var session = driver.session();
-             var tx = session.beginTransaction()) {
-            tx.run("CREATE INDEX resource_name FOR (r:Resource) ON (r.name)");
-            tx.run("CREATE CONSTRAINT unique_address FOR (r:Resource) REQUIRE r.address IS UNIQUE");
-            tx.run("CREATE INDEX attribute_name FOR (a:Attribute) ON (a.name)");
-            tx.run("CREATE INDEX capability_name FOR (c:Capability) ON (c.name)");
-            tx.run("CREATE INDEX operation_name FOR (o:Operation) ON (o.name)");
-            tx.run("CREATE INDEX parameter_name FOR (p:Parameter) ON (p.name)");
-            tx.commit();
+        if (!append) {
+            try (var session = driver.session();
+                 var tx = session.beginTransaction()) {
+                tx.run("CREATE INDEX resource_name FOR (r:Resource) ON (r.name)");
+                tx.run("CREATE CONSTRAINT unique_address FOR (r:Resource) REQUIRE r.address IS UNIQUE");
+                tx.run("CREATE INDEX attribute_name FOR (a:Attribute) ON (a.name)");
+                tx.run("CREATE INDEX capability_name FOR (c:Capability) ON (c.name)");
+                tx.run("CREATE INDEX operation_name FOR (o:Operation) ON (o.name)");
+                tx.run("CREATE INDEX parameter_name FOR (p:Parameter) ON (p.name)");
+                tx.commit();
+            }
         }
     }
 
@@ -75,6 +77,17 @@ public class Neo4jClient implements AutoCloseable {
             var counters = result.consume().counters();
             logger.debug("{} node and {} relations created", counters.nodesCreated(), counters.relationshipsCreated());
             return counters;
+        }
+    }
+
+    public boolean exists(Cypher cypher) {
+        cypher.append(" RETURN count(r) AS node_count");
+        try (var session = driver.session()) {
+            long count = session.executeRead(tx -> {
+                var result = tx.run(cypher.statement(), cypher.parameters());
+                return result.single().get("node_count").asLong();
+            });
+            return count > 0;
         }
     }
 
