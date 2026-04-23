@@ -44,6 +44,7 @@ public interface ModelDescriptionConstants {
     String ALIAS = "alias";
     String ALLOWED = "allowed";
     String ALTERNATIVES = "alternatives";
+    String ARTIFACT_ID = "artifact-id";
     String ATTRIBUTE_GROUP = "attribute-group";
     String ATTRIBUTES = "attributes";
     String ATTRIBUTES_ONLY = "attributes-only";
@@ -64,12 +65,14 @@ public interface ModelDescriptionConstants {
     String FAILURE_DESCRIPTION = "failure-description";
 
     String GLOBAL = "global";
+    String GROUP_ID = "group-id";
 
     String IDENTIFIER = "identifier";
     String INCLUDE_ALIASES = "include-aliases";
     String INCLUDE_RUNTIME = "include-runtime";
     String INCLUDE_SINGLETONS = "include-singletons";
 
+    String LICENSES = "licenses";
     String LIST_ADD = "list-add";
     String LIST_CLEAR = "list-clear";
     String LIST_GET = "list-get";
@@ -130,6 +133,7 @@ public interface ModelDescriptionConstants {
     String RETURN_VALUE = "return-value";
     String RUNTIME_ONLY = "runtime-only";
 
+    String SCM_URL = "scm-url";
     String SENSITIVE = "sensitive";
     String SINCE = "since";
     String SINGLETON = "singleton";
@@ -141,8 +145,10 @@ public interface ModelDescriptionConstants {
 
     String UNDEFINE_ATTRIBUTE = "undefine-attribute";
     String UNIT = "unit";
+    String URL = "url";
 
     String VALUE_TYPE = "value-type";
+    String VERSION = "version";
 
     String WHOAMI = "whoami";
     String WRITE_ATTRIBUTE = "write-attribute";

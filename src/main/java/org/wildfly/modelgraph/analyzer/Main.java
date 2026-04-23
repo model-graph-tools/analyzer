@@ -4,11 +4,14 @@ import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wildfly.modelgraph.analyzer.dmr.WildFlyClient;
+import org.wildfly.modelgraph.analyzer.dmr.JsonModel;
+import org.wildfly.modelgraph.analyzer.dmr.ManagementModel;
+import org.wildfly.modelgraph.analyzer.dmr.WildFlyInstance;
 import org.wildfly.modelgraph.analyzer.neo4j.Neo4jClient;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import picocli.CommandLine;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -21,25 +24,46 @@ import picocli.CommandLine.Parameters;
         optionListHeading = "%nOptions:%n",
         headerHeading = "%n",
         footerHeading = "%n",
-        description = "Reads the management model from a WildFly instance and stores it as a graph in a Neo4j database",
+        description = "Reads the management model from a WildFly instance or feature pack and stores it as a graph in a Neo4j database",
         versionProvider = VersionProvider.class)
 public class Main implements Callable<Stats> {
 
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    @Option(names = {"-w", "--wildfly"},
-            description = "WildFly instance as <server>[:<port>] with 9990 as default port. Omit to connect to a local WildFly instance at localhost:9990.")
-    HostAndPort wildFly;
+    static class WildFly {
 
-    @Option(names = {"-u", "--wildfly-user"}, description = "WildFly admin username")
-    String wildFlyUsername = "";
+        @Option(names = {"-w", "--wildfly"},
+                description = "WildFly instance as <server>[:<port>] with 9990 as default port. Omit to connect to a local WildFly instance at localhost:9990.")
+        HostAndPort host;
 
-    @Option(names = {"-p", "--wildfly-password"}, description = "WildFly admin password")
-    String wildFlyPassword = "";
+        @Option(names = {"-u", "--wildfly-user"}, description = "WildFly admin username")
+        String username = "";
+
+        @Option(names = {"-p", "--wildfly-password"}, description = "WildFly admin password")
+        String password = "";
+    }
+
+    static class DocZip {
+
+        @Option(names = {"-z", "--doc-zip"}, description = "Documentation classifier of a WildFly server or feature pack")
+        String filename;
+    }
+
+    static class Source {
+
+        @ArgGroup(exclusive = false, multiplicity = "1")
+        WildFly wildFly;
+
+        @ArgGroup(exclusive = false, multiplicity = "1")
+        DocZip docZip;
+    }
+
+    @ArgGroup(multiplicity = "1")
+    Source source;
 
     @Option(names = {"-n", "--neo4j"},
             description = "Neo4j database as <server>[:<port>] with 7687 as default port. Omit to connect to a local Neo4j database at localhost:7687.")
-    HostAndPort neo4j;
+    HostAndPort neo4jHost;
 
     @Option(names = {"-s", "--neo4j-user"}, description = "Neo4j username")
     String neo4jUsername = "";
@@ -48,7 +72,7 @@ public class Main implements Callable<Stats> {
     String neo4jPassword = "";
 
     @Option(names = {"-c", "--clean"},
-            description = "Remove all indexes, nodes, relationships and properties before analysing the management model tree.")
+            description = "Remove all indexes, nodes, relationships and properties before analyzing the management model tree.")
     boolean clean = false;
 
     @Option(names = {"-a", "--append"},
@@ -65,10 +89,10 @@ public class Main implements Callable<Stats> {
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message and exit")
     boolean helpRequested;
 
-    @Parameters(paramLabel = "RESOURCE", description = "the root resource to analyse.")
+    @Parameters(paramLabel = "RESOURCE", description = "the root resource to analyze.")
     String resource = "/";
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         var cmd = new CommandLine(new Main());
         cmd.registerConverter(HostAndPort.class, HostAndPort::fromString);
 
@@ -89,14 +113,25 @@ public class Main implements Callable<Stats> {
                 l.setLevel(Level.DEBUG);
             }
         }
-
-        try (var wc = new WildFlyClient(failSafeHostAndPort(wildFly, 9990), wildFlyUsername, wildFlyPassword);
-             var nc = new Neo4jClient(failSafeHostAndPort(neo4j, 7687), neo4jUsername, neo4jPassword, clean, append)) {
-
-            // start with resource and store metadata into a neo4j database
-            var analyzer = new Analyzer(wc, nc);
+        try (var mm = createManagementModel();
+             var nc = new Neo4jClient(failSafeHostAndPort(neo4jHost, 7687), neo4jUsername, neo4jPassword, clean, append)) {
+            var analyzer = new Analyzer(mm, nc);
             analyzer.start(resource, append);
             return analyzer.stats();
+        } catch (Exception e) {
+            logger.error("Analyzer failed: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private ManagementModel createManagementModel() {
+        if (source.wildFly != null) {
+            return new WildFlyInstance(failSafeHostAndPort(source.wildFly.host, 9990), source.wildFly.username,
+                    source.wildFly.password);
+        } else if (source.docZip != null) {
+            return new JsonModel(source.docZip.filename);
+        } else {
+            throw new RuntimeException("No WildFly instance or documentation classifier specified");
         }
     }
 

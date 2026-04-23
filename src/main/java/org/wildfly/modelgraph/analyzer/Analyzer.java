@@ -15,13 +15,12 @@ import org.jboss.dmr.ModelType;
 import org.jboss.dmr.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wildfly.modelgraph.analyzer.dmr.Operation;
+import org.wildfly.modelgraph.analyzer.dmr.Identity;
+import org.wildfly.modelgraph.analyzer.dmr.ManagementModel;
 import org.wildfly.modelgraph.analyzer.dmr.ResourceAddress;
-import org.wildfly.modelgraph.analyzer.dmr.WildFlyClient;
 import org.wildfly.modelgraph.analyzer.neo4j.Cypher;
 import org.wildfly.modelgraph.analyzer.neo4j.Neo4jClient;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -31,8 +30,8 @@ import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ADDR
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ALIAS;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ALLOWED;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ALTERNATIVES;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ARTIFACT_ID;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ATTRIBUTES;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ATTRIBUTES_ONLY;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ATTRIBUTE_GROUP;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.CAPABILITIES;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.CAPABILITY_REFERENCE;
@@ -44,19 +43,14 @@ import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.DEPR
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.DESCRIPTION;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.EXPRESSIONS_ALLOWED;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.GLOBAL;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.GROUP_ID;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.IDENTIFIER;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.INCLUDE_ALIASES;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.INCLUDE_RUNTIME;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.INCLUDE_SINGLETONS;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.LICENSES;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.LIST_ADD;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.LIST_CLEAR;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.LIST_GET;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.LIST_REMOVE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAJOR;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MANAGEMENT_MAJOR_VERSION;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MANAGEMENT_MICRO_VERSION;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MANAGEMENT_MINOR_VERSION;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MANAGEMENT_VERSION;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAP_CLEAR;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAP_GET;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.MAP_PUT;
@@ -73,8 +67,6 @@ import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.OPER
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.ORDINAL;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.PARENT;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.PATCH;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.PRODUCT_NAME;
-import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.PRODUCT_VERSION;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.QUERY;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_ATTRIBUTE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.READ_ATTRIBUTE_GROUP;
@@ -96,6 +88,7 @@ import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.REST
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.RESULT;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.RETURN_VALUE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.RUNTIME_ONLY;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SCM_URL;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SENSITIVE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SINCE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.SINGLETON;
@@ -104,7 +97,9 @@ import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.STOR
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.TYPE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.UNDEFINE_ATTRIBUTE;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.UNIT;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.URL;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.VALUE_TYPE;
+import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.VERSION;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.WHOAMI;
 import static org.wildfly.modelgraph.analyzer.dmr.ModelDescriptionConstants.WRITE_ATTRIBUTE;
 
@@ -137,13 +132,13 @@ class Analyzer {
             WHOAMI,
             WRITE_ATTRIBUTE);
 
-    private final WildFlyClient wc;
+    private final ManagementModel mm;
     private final Neo4jClient nc;
     private final Stats stats;
     private final Set<String> missingGlobalOperations;
 
-    Analyzer(WildFlyClient wc, Neo4jClient nc) {
-        this.wc = wc;
+    Analyzer(ManagementModel mm, Neo4jClient nc) {
+        this.mm = mm;
         this.nc = nc;
         this.stats = new Stats();
         this.missingGlobalOperations = Sets.mutable.ofAll(GLOBAL_OPERATIONS.castToSet());
@@ -159,18 +154,14 @@ class Analyzer {
     // ------------------------------------------------------ management model
 
     private void identity() {
-        var operation = new Operation.Builder(READ_RESOURCE, ResourceAddress.of("/"))
-                .param(ATTRIBUTES_ONLY, true)
-                .param(INCLUDE_RUNTIME, true)
-                .build();
-        var modelNode = wc.execute(operation);
+        var modelNode = mm.identity();
         writeIdentity(modelNode);
     }
 
     private void parse(ResourceAddress address, ResourceAddress parent, boolean append) {
         if (address.size() < MAX_DEPTH) {
             parseResource(address, parent, append);
-            for (var child : readChildren(address)) {
+            for (var child : mm.children(address)) {
                 parse(address.add(child), address, append);
             }
         } else {
@@ -184,12 +175,7 @@ class Analyzer {
             return;
         }
 
-        var rrd = new Operation.Builder(READ_RESOURCE_DESCRIPTION, address)
-                .param(INCLUDE_ALIASES, true)
-                .param(OPERATIONS, true)
-                .build();
-
-        var resourceDescription = wc.execute(rrd);
+        var resourceDescription = mm.resourceDescription(address);
         if (resourceDescription.isDefined()) {
             logger.info("Read {}", address.toString());
 
@@ -245,37 +231,21 @@ class Analyzer {
         }
     }
 
-    private List<String> readChildren(ResourceAddress address) {
-        var rct = new Operation.Builder(READ_CHILDREN_TYPES, address)
-                .param(INCLUDE_SINGLETONS, true)
-                .build();
-
-        var result = wc.execute(rct);
-        if (result.isDefined()) {
-            return result.asList().stream().map(ModelNode::asString).collect(toList());
-        }
-        return emptyList();
-    }
-
     // ------------------------------------------------------ resources
 
-    private void writeIdentity(ModelNode identityNode) {
-        String productName = identityNode.get(PRODUCT_NAME).asString("WildFly");
-        String productVersion = identityNode.get(PRODUCT_VERSION).asString("0.0.0");
-        int major = identityNode.get(MANAGEMENT_MAJOR_VERSION).asInt();
-        int minor = identityNode.get(MANAGEMENT_MINOR_VERSION).asInt();
-        int patch = identityNode.get(MANAGEMENT_MICRO_VERSION).asInt();
-        String managementVersion = String.format("%d.%d.%d", major, minor, patch);
-        String identifier = String.format("%s-%s-mgt-%s",
-                Strings.identify(productName), productVersion, managementVersion);
-
+    private void writeIdentity(Identity identity) {
         var cypher = new Cypher("MERGE (:Identity {")
-                .append(IDENTIFIER, identifier).comma()
-                .append(PRODUCT_NAME, productName).comma()
-                .append(PRODUCT_VERSION, productVersion).comma()
-                .append(MANAGEMENT_VERSION, managementVersion)
+                .append(TYPE, identity.type().id).comma()
+                .append(IDENTIFIER, identity.identifier()).comma()
+                .append(GROUP_ID, identity.groupId()).comma()
+                .append(ARTIFACT_ID, identity.artifactId()).comma()
+                .append(VERSION, identity.version()).comma()
+                .append(NAME, identity.name()).comma()
+                .append(DESCRIPTION, identity.description()).comma()
+                .append(URL, identity.url()).comma()
+                .append(SCM_URL, identity.scmUrl()).comma()
+                .append(LICENSES, String.join(", ", identity.licenses()))
                 .append("})");
-
         nc.execute(cypher);
         stats.resources++;
     }

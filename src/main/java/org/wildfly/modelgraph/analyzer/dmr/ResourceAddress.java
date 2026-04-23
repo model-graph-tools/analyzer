@@ -21,7 +21,7 @@ import org.jboss.dmr.ModelNode;
 public class ResourceAddress extends ModelNode {
 
     public static ResourceAddress of(String address) {
-        if (address != null && address.length() != 0 && !"/".equals(address)) {
+        if (address != null && !address.isEmpty() && !"/".equals(address)) {
             var node = new ModelNode();
             var normalized = address.startsWith("/") ? address.substring(1) : address;
             var segments = normalized.split("/");
@@ -46,7 +46,7 @@ public class ResourceAddress extends ModelNode {
         var address = new ResourceAddress(this);
         if (segment != null) {
             var kv = segment.split("=", 2);
-            if (kv.length ==1) {
+            if (kv.length == 1) {
                 address.add().set(kv[0], "*");
             } else if (kv.length == 2) {
                 address.add().set(kv[0], kv[1]);
