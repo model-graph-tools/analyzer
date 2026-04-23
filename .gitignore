@@ -4,6 +4,7 @@
 .idea
 .settings
 .project
+.claude
 .classpath
 dependency-reduced-pom.xml
 hs_err*

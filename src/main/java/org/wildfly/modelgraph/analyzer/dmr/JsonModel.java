@@ -73,7 +73,8 @@ public class JsonModel implements ManagementModel {
         String url = metadata.getString("url");
         String scmUrl = metadata.getString("scm-url");
         String[] licenses = metadata.getJsonArray("licenses").stream().map(JsonValue::toString).toArray(String[]::new);
-        // TODO WildFly or Feature Pack?
+        // Galleon doc ZIPs are always feature packs — even the WildFly distribution ships as one.
+        // The WILDFLY identity type is reserved for live server connections via WildFlyInstance.
         return Identity.featurePack(groupId, artifactId, name, description, version, url, scmUrl, licenses);
     }
 
