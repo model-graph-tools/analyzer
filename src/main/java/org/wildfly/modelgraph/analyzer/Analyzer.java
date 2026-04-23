@@ -239,7 +239,7 @@ class Analyzer {
                 .append(IDENTIFIER, identity.identifier()).comma()
                 .append(GROUP_ID, identity.groupId()).comma()
                 .append(ARTIFACT_ID, identity.artifactId()).comma()
-                .append(VERSION, identity.version()).comma()
+                .append(VERSION, identity.version().toString()).comma()
                 .append(NAME, identity.name()).comma()
                 .append(DESCRIPTION, identity.description()).comma()
                 .append(URL, identity.url()).comma()
