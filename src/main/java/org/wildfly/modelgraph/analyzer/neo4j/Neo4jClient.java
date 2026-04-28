@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.wildfly.modelgraph.analyzer.HostAndPort;
 import org.wildfly.modelgraph.analyzer.Strings;
 
-public class Neo4jClient implements AutoCloseable {
+public class Neo4jClient implements GraphClient {
 
     private static final Logger logger = LoggerFactory.getLogger(Neo4jClient.class);
 

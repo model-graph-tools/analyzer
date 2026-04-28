@@ -19,7 +19,7 @@ import org.wildfly.modelgraph.analyzer.dmr.Identity;
 import org.wildfly.modelgraph.analyzer.dmr.ManagementModel;
 import org.wildfly.modelgraph.analyzer.dmr.ResourceAddress;
 import org.wildfly.modelgraph.analyzer.neo4j.Cypher;
-import org.wildfly.modelgraph.analyzer.neo4j.Neo4jClient;
+import org.wildfly.modelgraph.analyzer.neo4j.GraphClient;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -133,11 +133,11 @@ class Analyzer {
             WRITE_ATTRIBUTE);
 
     private final ManagementModel mm;
-    private final Neo4jClient nc;
+    private final GraphClient nc;
     private final Stats stats;
     private final Set<String> missingGlobalOperations;
 
-    Analyzer(ManagementModel mm, Neo4jClient nc) {
+    Analyzer(ManagementModel mm, GraphClient nc) {
         this.mm = mm;
         this.nc = nc;
         this.stats = new Stats();

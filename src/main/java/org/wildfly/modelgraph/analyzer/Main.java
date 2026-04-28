@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.wildfly.modelgraph.analyzer.dmr.JsonModel;
 import org.wildfly.modelgraph.analyzer.dmr.ManagementModel;
 import org.wildfly.modelgraph.analyzer.dmr.WildFlyInstance;
+import org.wildfly.modelgraph.analyzer.neo4j.DryRunClient;
+import org.wildfly.modelgraph.analyzer.neo4j.GraphClient;
 import org.wildfly.modelgraph.analyzer.neo4j.Neo4jClient;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
@@ -79,6 +81,10 @@ public class Main implements Callable<Stats> {
             description = "Only add new resources, existing resources will be skipped.")
     boolean append = false;
 
+    @Option(names = {"-d", "--dry-run"},
+            description = "Analyze the source without writing to Neo4j. Logs Cypher statements that would be executed.")
+    boolean dryRun = false;
+
     @Option(names = {"-v", "--verbose"},
             description = "Prints additional information about the processed resources.")
     boolean verbose = false;
@@ -113,8 +119,11 @@ public class Main implements Callable<Stats> {
                 l.setLevel(Level.DEBUG);
             }
         }
+        if (dryRun && (clean || append)) {
+            logger.warn("Dry run mode: --clean and --append options are ignored");
+        }
         try (var mm = createManagementModel();
-             var nc = new Neo4jClient(failSafeHostAndPort(neo4jHost, 7687), neo4jUsername, neo4jPassword, clean, append)) {
+             var nc = createGraphClient()) {
             var analyzer = new Analyzer(mm, nc);
             analyzer.start(resource, append);
             return analyzer.stats();
@@ -122,6 +131,13 @@ public class Main implements Callable<Stats> {
             logger.error("Analyzer failed: {}", e.getMessage());
             return null;
         }
+    }
+
+    private GraphClient createGraphClient() {
+        if (dryRun) {
+            return new DryRunClient();
+        }
+        return new Neo4jClient(failSafeHostAndPort(neo4jHost, 7687), neo4jUsername, neo4jPassword, clean, append);
     }
 
     private ManagementModel createManagementModel() {
