@@ -39,6 +39,15 @@ Both provide: `identity()`, `children(address)`, `resourceDescription(address)`.
 
 Global operations (e.g., `read-resource`, `read-attribute`) are created once and linked to all resources rather than duplicated.
 
+### Graph Client (`GraphClient` interface)
+
+Two implementations behind `GraphClient`:
+
+- **`Neo4jClient`** — connects to a Neo4j database via the Bolt protocol, executes Cypher statements, and manages indexes/constraints
+- **`DryRunClient`** — logs Cypher statements and parameters without connecting to Neo4j; estimates node/relationship counts from the statement text
+
+The `--dry-run` / `-d` flag selects `DryRunClient`. In dry-run mode, `--clean` and `--append` are ignored.
+
 ### Key Domain Types
 
 - **`ResourceAddress`** — extends `ModelNode`, represents a DMR path like `/subsystem=undertow/server=default-server`. Its `toString()` format is used as the unique key in Neo4j.

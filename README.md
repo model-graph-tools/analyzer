@@ -52,7 +52,7 @@ java -jar target/model-graph-analyzer-<version>.jar [OPTIONS] [RESOURCE]
 ```shell
 model-graph-analyzer (([-w=<host>] [-u=<username>] [-p=<password>]) | [-z=<filename>]) 
                      [-n=<neo4jHost>] [-s=<neo4jUsername>] [-t=<neo4jPassword>]
-                     [-achvV] 
+                     [-acdhvV] 
                      RESOURCE
 ```
 
@@ -67,6 +67,7 @@ model-graph-analyzer (([-w=<host>] [-u=<username>] [-p=<password>]) | [-z=<filen
 | `-t`, `--neo4j-password <password>`   | Neo4j password                                            |
 | `-c`, `--clean`                       | Remove all existing data from Neo4j before analyzing      |
 | `-a`, `--append`                      | Only add new resources; skip resources that already exist |
+| `-d`, `--dry-run`                     | Analyze the source without writing to Neo4j. Logs Cypher statements that would be executed |
 | `-v`, `--verbose`                     | Print detailed information about each processed resource  |
 | `-V`, `--version`                     | Display version information                               |
 | `-h`, `--help`                        | Display the help message                                  |
@@ -80,13 +81,13 @@ The `RESOURCE` parameter specifies the root resource address to start the analys
 Analyze a local WildFly instance and store the full model in a local Neo4j database:
 
 ```bash
-java -jar target/model-graph-analyzer-0.1.1.jar -w localhost
+java -jar target/model-graph-analyzer-0.1.2.jar -w localhost
 ```
 
 Analyze only the Undertow subsystem of a remote WildFly instance with authentication:
 
 ```bash
-java -jar target/model-graph-analyzer-0.1.1.jar \
+java -jar target/model-graph-analyzer-0.1.2.jar \
     -w 192.168.1.10:9990 -u admin -p secret \
     -n neo4j-host:7687 -s neo4j -t neo4j \
     /subsystem=undertow
@@ -95,15 +96,22 @@ java -jar target/model-graph-analyzer-0.1.1.jar \
 Clean the database first, then analyze from a documentation ZIP:
 
 ```bash
-java -jar target/model-graph-analyzer-0.1.1.jar \
+java -jar target/model-graph-analyzer-0.1.2.jar \
     -c -z wildfly-galleon-pack-35.0.0.Final-doc.zip
 ```
 
 Append a second feature pack to an existing graph (resources already present are skipped):
 
 ```bash
-java -jar target/model-graph-analyzer-0.1.1.jar \
+java -jar target/model-graph-analyzer-0.1.2.jar \
     -a -z wildfly-ee-galleon-pack-35.0.0.Final-doc.zip
+```
+
+Preview the Cypher statements without connecting to Neo4j (dry run):
+
+```bash
+java -jar target/model-graph-analyzer-0.1.2.jar \
+    -d -v -z wildfly-galleon-pack-35.0.0.Final-doc.zip
 ```
 
 ## Graph Database
