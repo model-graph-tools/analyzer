@@ -53,7 +53,7 @@ java -jar target/model-graph-analyzer-<version>.jar [OPTIONS] [RESOURCE]
 model-graph-analyzer (([-w=<host>] [-u=<username>] [-p=<password>]) | [-z=<filename>]) 
                      [-n=<neo4jHost>] [-s=<neo4jUsername>] [-t=<neo4jPassword>]
                      [-acdhvV] 
-                     RESOURCE
+                     [RESOURCE]
 ```
 
 | Option                                | Description                                               |

@@ -95,7 +95,8 @@ public class Main implements Callable<Stats> {
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message and exit")
     boolean helpRequested;
 
-    @Parameters(paramLabel = "RESOURCE", description = "the root resource to analyze.")
+    @Parameters(paramLabel = "RESOURCE", defaultValue = "/", arity = "0..1",
+            description = "the root resource to analyze. Defaults to '/' (entire management model tree).")
     String resource = "/";
 
     static void main(String[] args) {
