@@ -158,7 +158,7 @@ Global operations (like `read-resource` or
 
 ### Schema Diagram
 
-![Graph Database](https://model-graph-tools.github.io/img/graph.svg)
+![Graph Database](https://model-graph-tools.github.io/schema.svg)
 
 ### Sample Queries
 
