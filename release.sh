@@ -137,7 +137,7 @@ done
 
 msg ""
 msg "Update version to ${CYAN}${RELEASE_VERSION}${NOFORMAT}"
-mvn --quiet versions:set -DnewVersion="${RELEASE_VERSION}" &> /dev/null
+./mvnw --quiet versions:set -DnewVersion="${RELEASE_VERSION}" &> /dev/null
 msg "Push changes"
 git commit --quiet -am "Release ${RELEASE_VERSION}"
 git push --quiet origin main &> /dev/null
