@@ -43,7 +43,6 @@ public class Neo4jClient implements GraphClient {
             failSafeDrop("DROP CONSTRAINT unique_address IF EXISTS");
             failSafeDrop("DROP INDEX attribute_name IF EXISTS");
             failSafeDrop("DROP INDEX mgt_search IF EXISTS");
-            failSafeDrop("DROP INDEX mgt_capability_search IF EXISTS");
         }
         if (!append) {
             try (var session = driver.session();
@@ -54,8 +53,7 @@ public class Neo4jClient implements GraphClient {
                 tx.run("CREATE INDEX capability_name FOR (c:Capability) ON (c.name)");
                 tx.run("CREATE INDEX operation_name FOR (o:Operation) ON (o.name)");
                 tx.run("CREATE INDEX parameter_name FOR (p:Parameter) ON (p.name)");
-                tx.run("CREATE FULLTEXT INDEX mgt_search IF NOT EXISTS FOR (n:Resource|Attribute|Operation) ON EACH [n.name, n.description]");
-                tx.run("CREATE FULLTEXT INDEX mgt_capability_search IF NOT EXISTS FOR (n:Capability) ON EACH [n.name]");
+                tx.run("CREATE FULLTEXT INDEX mgt_search IF NOT EXISTS FOR (n:Resource|Attribute|Capability|Operation) ON EACH [n.name]");
                 tx.commit();
             }
         }
