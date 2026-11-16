@@ -660,7 +660,9 @@ class Analyzer {
     private void appendValueType(Cypher cypher, ModelNode modelNode) {
         if (modelNode.hasDefined(VALUE_TYPE)) {
             var valueTypeNode = modelNode.get(VALUE_TYPE);
-            if (ModelType.STRING == valueTypeNode.getType()) {
+            if (ModelType.TYPE == valueTypeNode.getType()) {
+                cypher.comma().append(VALUE_TYPE, valueTypeNode.asType().name());
+            } else if (ModelType.STRING == valueTypeNode.getType()) {
                 cypher.comma().append(VALUE_TYPE, valueTypeNode.asString());
             } else {
                 cypher.comma().append(VALUE_TYPE, ModelType.OBJECT.name());
