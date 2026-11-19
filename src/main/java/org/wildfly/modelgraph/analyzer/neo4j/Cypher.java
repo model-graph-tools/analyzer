@@ -30,11 +30,6 @@ public class Cypher {
         return append(name, name, value);
     }
 
-    public <T> Cypher param(String name, T value) {
-        parameters.put(name.replace('-', '_'), Values.value(value));
-        return this;
-    }
-
     public <T> Cypher append(String attribute, String placeholder, T value) {
         var safePlaceHolder = placeholder.replace('-', '_');
         if (attribute.contains("-")) {
