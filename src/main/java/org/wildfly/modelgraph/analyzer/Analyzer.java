@@ -302,9 +302,14 @@ class Analyzer {
     private void mergeDeclaresCapabilities(ResourceAddress address, ModelNode capability) {
         var cypher = matchResource(address)
                 .append(" MERGE (c:Capability {")
-                .append(NAME, capability.get(NAME).asString());
-        appendIfDefined(cypher, STABILITY, capability, ModelNode::asString);
-        cypher.append("}) MERGE (r)-[:DECLARES_CAPABILITY]->(c)");
+                .append(NAME, capability.get(NAME).asString())
+                .append("})");
+        if (capability.hasDefined(STABILITY)) {
+            cypher.append(" ON CREATE SET c.stability = $cap_stability")
+                    .append(" ON MATCH SET c.stability = coalesce(c.stability, $cap_stability)")
+                    .param("cap_stability", capability.get(STABILITY).asString());
+        }
+        cypher.append(" MERGE (r)-[:DECLARES_CAPABILITY]->(c)");
 
         var counters = nc.execute(cypher);
         stats.capabilities += counters.nodesCreated();
