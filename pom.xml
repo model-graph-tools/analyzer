@@ -70,7 +70,7 @@
         <logback.version>1.6.8</logback.version>
         <neo4j.driver.version>6.3.0</neo4j.driver.version>
         <picocli.version>4.7.7</picocli.version>
-        <wildfly.client.version>34.0.0.Final</wildfly.client.version>
+        <wildfly.client.version>34.0.1.Final</wildfly.client.version>
 
         <!-- settings -->
         <encoding>UTF-8</encoding>
